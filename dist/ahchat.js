@@ -520,6 +520,10 @@
                         chat.push(data, render);
                     }
                 }
+            },
+            /* @this AHChat */
+            chat: function(data){
+                this.addChat(data.id, data);
             }
         };
 
