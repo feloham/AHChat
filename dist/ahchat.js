@@ -40,7 +40,7 @@
             // #>1
             $.when(this.render(cfg.template)).done($.proxy(function(){
                 $(document.body).append(this.el);
-                this.setToken(localStorage.getItem('chatToken'));
+                this.setToken(localStorage.getItem('chatToken')||cfg.token);
                 if(this.token){
                     this.initSocket(cfg.url);
                 }
@@ -128,6 +128,16 @@
          * */
         this.enableChat = function(){
             this.$el.addClass('chat');
+            return this;
+        };
+
+        /**
+         * Set current seller
+         * @param name {string} name of seller
+         * */
+        this.setSeller = function(name){
+            this.sellerName = name;
+            this.$el.find('.sellerName').text(this.sellerName||'');
             return this;
         };
 
@@ -278,7 +288,7 @@
             /* @this Chat */
             auth: function(data){
                 if(data.token && data.sellerName){
-                    this.sellerName = data.sellerName;
+                    this.setSeller(data.sellerName);
                     if(data.name) this.name = data.name;
                     if(data.messages){
                         this.msg('add', data.messages);

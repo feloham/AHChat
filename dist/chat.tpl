@@ -1,7 +1,7 @@
 <div class="ah-chat">
     <div class="window">
         <div class="heading">
-            <a>Продавец</a>
+            <a class="sellerName"></a>
             <button class="close-window">x</button>
         </div>
         <div class="panel">
