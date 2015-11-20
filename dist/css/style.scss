@@ -10,9 +10,15 @@
     border-radius: 4px;
     cursor: pointer;
     text-align: center;
-    a{
+    a.open-btn{
       color: #ffffff;
       font-weight: bold;
+    }
+    a.chats-btn{
+      display: none;
+    }
+    .chats{
+      display: none;
     }
   }
   .window{
@@ -116,6 +122,23 @@
       }
       .footer{
         display: block;
+      }
+    }
+  }
+  &.seller{
+    .fixed-btn{
+      .chats-btn{
+        display: block;
+      }
+      .open-btn{
+        display: none;
+      }
+    }
+    &.open{
+      .fixed-btn{
+        .chats{
+          display: block;
+        }
       }
     }
   }

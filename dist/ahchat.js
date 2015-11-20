@@ -1,3 +1,128 @@
+function doubleString(char){
+    return String(char).length>1?char:'0'+char;
+}
+
+function dateToDateString(date){
+    return [
+        doubleString(date.getDate()),
+        doubleString(date.getMonth()),
+        doubleString(date.getFullYear())
+    ].join('.');
+}
+
+function timestampToDateString(timestamp){
+    var dt = new Date(timestamp*1000);
+    if(new Date().getDate() == dt.getDate()){
+        return dt.toLocaleTimeString();
+    }else{
+        return dateToDateString(dt);
+    }
+}
+
+var Message = function(hash){
+    this.attrs = {
+        id: 0,
+        text: '',
+        date: 0,
+        clientDate: 0,
+        chatId: 0
+    };
+
+    /**
+     * Rendering
+     * */
+    this.render = function(){
+        var $el = $(this.tpl);
+        $el.find('.text').text(this.attrs.text);
+        $el.find('.date').text(timestampToDateString(this.attrs.date));
+        if(this.my){
+            $el.addClass('my');
+        }
+        this.$list.append($el);
+        return this;
+    };
+
+    /**
+     * Setter
+     * @param data {object} datas
+     * */
+    this.set = function(data){
+        for(var v in data){
+            if(typeof this.attrs[v] != 'undefined'){
+                this.attrs[v] = data[v];
+            }
+        }
+        return this;
+    };
+
+    if(hash){
+        this.set(hash);
+    }
+};
+
+var Chat = function(id){
+    this.id = id || 0;
+    this.messages = {};
+    this.messageBuffer = {};
+
+    /**
+     * Add array of messages
+     * @param msg {Message}
+     * */
+    this.push = function(msg, render){
+        if(!(msg instanceof Message)){
+            msg = new Message(msg);
+            msg.chatId = this.id;
+        }
+        this.messages[msg.attrs.id] = msg;
+        if(render) msg.render();
+        return false;
+    };
+    /**
+     * Add array of messages
+     * @param arr {Array} array of messages
+     * @see this.push
+     * */
+    this.add = function(arr){
+        for(var i=0; i<arr.length; i++){
+            this.push(new Message(arr[i]));
+        }
+        return this;
+    };
+    /**
+     * Accepting sended message
+     * @param data {object} {id: 1, date: 234234}
+     * */
+    this.accept = function(data, render){
+        if(data.id && data.clientDate){
+            var msg = this.messageBuffer[data.clientDate];
+            if(msg){
+                msg.attrs.id = data.id;
+                msg.attrs.date = data.date;
+                msg.my = true;
+                this.push(msg, render);
+                delete this.messageBuffer[data.clientDate];
+                return this;
+            }
+        }
+        return false;
+    };
+    /**
+     * Add message to buffer
+     * */
+    this.addBuffer = function(msg){
+        msg.chatId = this.id;
+        var message = new Message(msg);
+        this.messageBuffer[message.attrs.clientDate] = message;
+        return message;
+    };
+    this.render = function(){
+        for(var v in this.messages){
+            this.messages[v].render();
+        }
+    };
+};
+
 (function(factory){
     if (typeof define === "function" && define.amd) {
         define(["jquery"], factory);
@@ -11,11 +136,7 @@
      * Chat class
      * @param cfg {object} configuration
      * */
-    var Chat = function(cfg){
-        //messages storage
-        this.messages = {};
-        //buffer of sended messages
-        this.messageBuffer = {};
+    var AHChat = function(cfg){
         //DOM element
         this.el = null;
         //jQuery element
@@ -26,8 +147,9 @@
         this.msgTpl = '';
         //Auth token
         this.token = null;
-        //Name of seller
-        this.sellerName = '';
+        //chats
+        this.chats = {};
+        this.type = cfg.id?'seller':'user';
 
         /**
          * Initialize. Render, open socket and delegation events.
@@ -58,10 +180,19 @@
             return $.get(template, $.proxy(function(tpl){
                 if(tpl){
                     this.$el = $(tpl);
+                    this.el = this.$el.get(0);
+
                     var $tpl = this.$el.find('#messageTpl');
                     this.msgTpl = $tpl.html();
+                    Message.prototype.tpl = this.msgTpl;
+                    Message.prototype.$list = this.$el.find('.messages');
                     $tpl.remove();
-                    this.el = this.$el.get(0);
+
+                    var $chatTpl = this.$el.find('#chatTpl');
+                    this.chatTpl = $chatTpl.html();
+                    $chatTpl.remove();
+
+                    this.$el.addClass(this.type);
                 }
             },this));
         };
@@ -71,11 +202,10 @@
          * @see this.bindEvent
          * */
         this.delegateEvents = function(){
-            this.bindEvent('.fixed-btn', 'click', 'toggleWindow')
+            return this.bindEvent('.fixed-btn > a', 'click', 'openWindow')
                 .bindEvent('.close-window', 'click', 'closeWindow')
                 .bindEvent('.auth-btn', 'click', 'authorization')
                 .bindEvent('form.textInp', 'submit', 'sendMessage');
-            return this;
         };
 
         /**
@@ -124,20 +254,49 @@
         };
 
         /**
+         * Add new chat
+         * @param id {int} id
+         * @param data {object} data
+         * */
+        this.addChat = function(id, data){
+            var chat = new Chat(id);
+            if(data && data.messages){
+                chat.add(data.messages);
+            }
+            this.chats[chat.id] = chat;
+            if(this.type == 'seller'){
+                var $list = this.$el.find('.fixed-btn .chats .list');
+                var $chat = $(this.chatTpl);
+                $chat.find('a').text(chat.chatter)
+            }
+        };
+        /**
+         * Get first chat
+         * @return {Chat|null}
+         * */
+        this.firstChat = function(){
+            for(var v in this.chats){
+                return this.chats[v];
+                break;
+            }
+            return null;
+        };
+        /**
          * Enable chat functionality
          * */
-        this.enableChat = function(){
+        this.openChat = function(chatId){
             this.$el.addClass('chat');
-            return this;
-        };
+            if(chatId){
+                this.currentChat = this.chats[chatId];
+            }else{
+                this.currentChat = this.firstChat();
+                if(!this.currentChat){
+                    this.addChat(0);
+                    this.currentChat = this.firstChat();
+                }
+            }
+            this.currentChat.render();
 
-        /**
-         * Set current seller
-         * @param name {string} name of seller
-         * */
-        this.setSeller = function(name){
-            this.sellerName = name;
-            this.$el.find('.sellerName').text(this.sellerName||'');
             return this;
         };
 
@@ -184,19 +343,20 @@
          * Section for work with events
          * */
         this.event = {
-            /* @this Chat */
+            /* @this AHChat */
             openWindow: function(){
                 this.$el.addClass('open');
+                if(this.type == 'user'){
+                    if(this.token){
+                        this.openChat();
+                    }
+                }
             },
-            /* @this Chat */
+            /* @this AHChat */
             closeWindow: function(){
                 this.$el.removeClass('open');
             },
-            /* @this Chat */
-            toggleWindow: function(){
-                this.$el.toggleClass('open');
-            },
-            /* @this Chat */
+            /* @this AHChat */
             authorization: function(){
                 // #>2.2
                 var $nameInp = this.$el.find('.auth input');
@@ -211,20 +371,30 @@
                     $nameInp.parent().addClass('error');
                 }
             },
-            /* @this Chat */
+            /* @this AHChat */
             sendMessage: function(e){
                 e.preventDefault();
                 var $textarea = this.$el.find('.msg-text');
                 var text = $textarea.val();
                 $textarea.val('');
-                return this.msg('send', text);
+
+                if(text){
+                    var msg = this.currentChat.addBuffer({
+                        text: text,
+                        clientDate: parseInt(Date.now()/1000),
+                        chatId: this.currentChat.id
+                    });
+                    this.req('message', msg.attrs);
+                    return this;
+                }
+                return false;
             },
-            /* @this Chat */
+            /* @this AHChat */
             socketOpen: function(){
                 // #>2.2.1
-                this.req('auth', this.token, this.name, cfg.sellerId);
+                this.req('auth', this.token, this.name, cfg.sellerId, cfg.id);
             },
-            /* @this Chat */
+            /* @this AHChat */
             socketMessage: function(res){
                 if(res && res.data){
                     var data = JSON.parse(res.data);
@@ -233,11 +403,11 @@
                     }
                 }
             },
-            /* @this Chat */
+            /* @this AHChat */
             socketClose: function(){
 
             },
-            /* @this Chat */
+            /* @this AHChat */
             socketError: function(){
 
             }
@@ -256,17 +426,24 @@
          * Section for work with requests
          * */
         this.request = {
-            /* @this Chat */
-            auth: function(token, name, sellerId){
+            /* @this AHChat */
+            auth: function(token, name, sellerId, myId){
                 var data = {};
                 if(token){
                     data.token = token;
-                }else{
-                    data = {name: name, sellerId: sellerId};
+                }
+                if(name){
+                    data.name = name;
+                }
+                if(sellerId){
+                    data.sellerId = sellerId;
+                }
+                if(myId){
+                    data.id = myId;
                 }
                 this.callSocket('auth', data);
             },
-            /* @this Chat */
+            /* @this AHChat */
             message: function(msg){
                 return this.callSocket('message', msg);
             }
@@ -285,25 +462,29 @@
          * Section for work with responses
          * */
         this.response = {
-            /* @this Chat */
+            /* @this AHChat */
             auth: function(data){
-                if(data.token && data.sellerName){
-                    this.setSeller(data.sellerName);
-                    if(data.name) this.name = data.name;
-                    if(data.messages){
-                        this.msg('add', data.messages);
+                if(data.name) this.name = data.name;
+                if(data.chats){
+                    for(var v in data.chats){
+                        this.addChat(v, data.chats[v]);
                     }
-                    // #>2.2.2
+                }
+                if(data.token){
                     this.setToken(data.token);
-                    this.enableChat();
+                    this.openChat();
                 }
             },
-            /* @this Chat */
+            /* @this AHChat */
             message: function(data){
-                if(data.accept){
-                    this.msg('accept', data);
-                }else{
-                    this.msg('push', data);
+                if(data.chatId){
+                    var chat = this.chats[data.chatId];
+                    var render = this.currentChat.id == chat.id;
+                    if(data.clientDate){
+                        chat.accept(data, render);
+                    }else{
+                        chat.push(data, render);
+                    }
                 }
             }
         };
@@ -316,121 +497,7 @@
         this.res = function(){
             return this.triggerMethod('response', arguments);
         };
-
-        /**
-         * Section for work with messages
-         * */
-        this.message = {
-            /**
-             * Rendering of message
-             * @param msg {object} message. Example: {id: 1, text: 'hello', date: 3498534321}
-             * @this Chat
-             * */
-            render: function(msg){
-                var $el = $(this.msgTpl);
-                $el.find('.text').text(msg.text);
-                $el.find('.date').text(timestampToDateString(msg.date));
-                if(msg.my){
-                    $el.addClass('my');
-                }
-                this.$el.find('.messages').append($el);
-                return this;
-            },
-            /**
-             * Add array of messages
-             * @param msg {object} message. Example: {id: 1, text: 'hello', date: 3498534321}
-             * @this Chat
-             * @see this.renderMessage
-             * */
-            push: function(msg){
-                if(msg.id && msg.text && msg.date){
-                    this.messages[msg.id] = msg;
-                    this.msg('render', msg);
-                    return this;
-                }
-                return false;
-            },
-            /**
-             * Add array of messages
-             * @param arr {Array} array of messages
-             * @this Chat
-             * @see this.push
-             * */
-            add: function(arr){
-                for(var i=0; i<arr.length; i++){
-                    this.msg('push', arr[i]);
-                }
-                return this;
-            },
-            /**
-             * Accepting sended message
-             * @param data {object} {id: 1, date: 234234}
-             * @this Chat
-             * @see this.messageBuffer
-             * */
-            accept: function(data){
-                if(data.id && data.date){
-                    var msg = this.messageBuffer[data.date];
-                    if(msg){
-                        msg.id = data.id;
-                        msg.my = true;
-                        this.msg('push', msg);
-                        delete this.messageBuffer[data.date];
-                    }
-                    return this;
-                }
-                return false;
-            },
-            /**
-             * Send message to socket
-             * @param text {string} text of message
-             * @this Chat
-             * @see this.messageBuffer
-             * */
-            send: function(text){
-                if(text){
-                    var msg = {
-                        text: text,
-                        date: parseInt(Date.now()/1000)
-                    };
-                    this.messageBuffer[msg.date] = msg;
-                    this.req('message', msg);
-                    return this;
-                }
-                return false;
-            }
-        };
-
-        /**
-         * Trigger for message section
-         * @see this.message
-         * @see this.triggerMethod
-         * */
-        this.msg = function(){
-            return this.triggerMethod('message', arguments);
-        };
     };
 
-    function doubleString(char){
-        return String(char).length>1?char:'0'+char;
-    }
-
-    function dateToDateString(date){
-        return [
-            doubleString(date.getDate()),
-            doubleString(date.getMonth()),
-            doubleString(date.getFullYear())
-        ].join('.');
-    }
-
-    function timestampToDateString(timestamp){
-        var dt = new Date(timestamp*1000);
-        if(new Date().getDate() == dt.getDate()){
-            return dt.toLocaleTimeString();
-        }else{
-            return dateToDateString(dt);
-        }
-    }
-
-    return Chat;
+    return AHChat;
 });

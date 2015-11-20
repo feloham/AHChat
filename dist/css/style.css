@@ -10,9 +10,13 @@
     border-radius: 4px;
     cursor: pointer;
     text-align: center; }
-    .ah-chat .fixed-btn a {
+    .ah-chat .fixed-btn a.open-btn {
       color: #ffffff;
       font-weight: bold; }
+    .ah-chat .fixed-btn a.chats-btn {
+      display: none; }
+    .ah-chat .fixed-btn .chats {
+      display: none; }
   .ah-chat .window {
     min-width: 300px;
     display: none;
@@ -82,6 +86,12 @@
   .ah-chat.chat .window .panel .chat {
     display: block; }
   .ah-chat.chat .window .footer {
+    display: block; }
+  .ah-chat.seller .fixed-btn .chats-btn {
+    display: block; }
+  .ah-chat.seller .fixed-btn .open-btn {
+    display: none; }
+  .ah-chat.seller.open .fixed-btn .chats {
     display: block; }
 
 /*# sourceMappingURL=style.css.map */

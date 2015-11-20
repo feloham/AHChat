@@ -22,12 +22,23 @@
         </div>
     </div>
     <div class="fixed-btn">
-        <a>Отправить сообщение</a>
+        <div class="chats">
+            <div class="heading">Список разговоров</div>
+            <div class="list"></div>
+        </div>
+        <a class="chats-btn">Разговоры</a>
+        <a class="open-btn">Открыть чат</a>
     </div>
     <div id="messageTpl">
         <div class="message">
             <div class="text"></div>
             <span class="date"></span>
+        </div>
+    </div>
+    <div id="chatTpl">
+        <div class="chat">
+            <span class="status"></span>
+            <a></a>
         </div>
     </div>
 </div>
