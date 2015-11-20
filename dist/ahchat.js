@@ -54,6 +54,7 @@
                 $el.addClass('my');
             }
             this.$list.append($el);
+            this.$list.scrollTop(this.$list.scrollTop()+$el.outerHeight(true)+100);
             return this;
         };
 
