@@ -1,0 +1,25 @@
+{
+  "name": "AHChat",
+  "description": "Websocket chat",
+  "main": [
+    "dist/ahchat.js",
+    "dist/css/style.scss"
+  ],
+  "dependencies": {
+    "jquery": ">=2"
+  },
+  "moduleType": [
+    "amd"
+  ],
+  "keywords": [
+    "chat",
+    "websocket"
+  ],
+  "authors": [
+    "Shoom <shoom3301@gmail.com>"
+  ],
+  "ignore": [
+  ],
+  "license": "MIT",
+  "private": false
+}

@@ -1,20 +1,12 @@
-/*
-
-Auth response:
-{
-token: 'iufh34834g03werds',
-seller: {name: 'Ivan'}
-}
-
- */
-
-(function(){
-    var config = {
-        template: 'chat.tpl',
-        sellerId: 14,
-        url: 'ws://localhost:8001'
-    };
-
+(function(factory){
+    if (typeof define === "function" && define.amd) {
+        define(["jquery"], factory);
+    } else if (typeof exports === 'object') {
+        factory(require('jquery'));
+    } else {
+        factory(jQuery);
+    }
+})(function($){
     /**
      * Chat class
      * @param cfg {object} configuration
@@ -409,6 +401,26 @@ seller: {name: 'Ivan'}
         };
     };
 
-    window.chat = new Chat(config);
-    chat.initialize();
-})();
+    function doubleString(char){
+        return String(char).length>1?char:'0'+char;
+    }
+
+    function dateToDateString(date){
+        return [
+            doubleString(date.getDate()),
+            doubleString(date.getMonth()),
+            doubleString(date.getFullYear())
+        ].join('.');
+    }
+
+    function timestampToDateString(timestamp){
+        var dt = new Date(timestamp*1000);
+        if(new Date().getDate() == dt.getDate()){
+            return dt.toLocaleTimeString();
+        }else{
+            return dateToDateString(dt);
+        }
+    }
+
+    return Chat;
+});

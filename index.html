@@ -5,12 +5,26 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="copyright" content="Shoom" />
 
-<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-<link rel="stylesheet" href="css/style.css" type="text/css" />
+<link rel="stylesheet" href="dist/css/style.css" type="text/css" />
+<script type="text/javascript" src="require.js"></script>
+<script>
+    requirejs.config({
+        paths: {
+            "jquery": "bower_components/jquery/dist/jquery.min",
+            "ahchat": "dist/ahchat"
+        }
+    });
 
-<script type="text/javascript" src="lib/jquery-min.js"></script>
-<script type="text/javascript" src="js/util.js" charset="utf-8"></script>
-<script type="text/javascript" src="js/main.js" charset="utf-8"></script>
+    require(["ahchat"], function(AHChat){
+        var config = {
+            template: 'dist/chat.tpl',
+            sellerId: 14,
+            url: 'ws://localhost:8001'
+        };
+        window.chat = new AHChat(config);
+        chat.initialize();
+    });
+</script>
 </head>
 <body>
 
