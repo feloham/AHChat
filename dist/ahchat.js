@@ -117,6 +117,7 @@ var Chat = function(id){
         return message;
     };
     this.render = function(){
+        Message.prototype.$list.empty();
         for(var v in this.messages){
             this.messages[v].render();
         }
@@ -162,7 +163,7 @@ var Chat = function(id){
             // #>1
             $.when(this.render(cfg.template)).done($.proxy(function(){
                 $(document.body).append(this.el);
-                this.setToken(localStorage.getItem('chatToken')||cfg.token);
+                this.setToken(cfg.token);
                 if(this.token){
                     this.initSocket(cfg.url);
                 }
@@ -260,14 +261,21 @@ var Chat = function(id){
          * */
         this.addChat = function(id, data){
             var chat = new Chat(id);
-            if(data && data.messages){
-                chat.add(data.messages);
+            if(data){
+                if(data.messages){
+                    chat.add(data.messages);
+                }
+                chat.chatter = data.chatter;
             }
             this.chats[chat.id] = chat;
             if(this.type == 'seller'){
-                var $list = this.$el.find('.fixed-btn .chats .list');
+                var $list = this.$el.find('.chats .list');
                 var $chat = $(this.chatTpl);
-                $chat.find('a').text(chat.chatter)
+                var self = this;
+                $chat.find('a').text(chat.chatter).click(function(){
+                    self.openChat(chat.id);
+                });
+                $list.append($chat);
             }
         };
         /**
@@ -354,7 +362,7 @@ var Chat = function(id){
             },
             /* @this AHChat */
             closeWindow: function(){
-                this.$el.removeClass('open');
+                this.$el.removeClass('open').removeClass('chat');
             },
             /* @this AHChat */
             authorization: function(){
@@ -479,7 +487,7 @@ var Chat = function(id){
             message: function(data){
                 if(data.chatId){
                     var chat = this.chats[data.chatId];
-                    var render = this.currentChat.id == chat.id;
+                    var render = this.currentChat && (this.currentChat.id == chat.id);
                     if(data.clientDate){
                         chat.accept(data, render);
                     }else{

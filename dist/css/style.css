@@ -4,6 +4,8 @@
   bottom: 5px;
   right: 5px;
   font-size: 14px; }
+  .ah-chat .chats {
+    display: none; }
   .ah-chat .fixed-btn {
     background-color: #16225E;
     padding: 8px 15px;
@@ -14,8 +16,6 @@
       color: #ffffff;
       font-weight: bold; }
     .ah-chat .fixed-btn a.chats-btn {
-      display: none; }
-    .ah-chat .fixed-btn .chats {
       display: none; }
   .ah-chat .window {
     min-width: 300px;
@@ -87,11 +87,19 @@
     display: block; }
   .ah-chat.chat .window .footer {
     display: block; }
+  .ah-chat.seller .window {
+    display: none; }
+  .ah-chat.seller .panel .auth {
+    display: none; }
   .ah-chat.seller .fixed-btn .chats-btn {
     display: block; }
   .ah-chat.seller .fixed-btn .open-btn {
     display: none; }
-  .ah-chat.seller.open .fixed-btn .chats {
+  .ah-chat.seller.open .chats {
+    display: block; }
+  .ah-chat.seller.open.chat .chats {
+    display: none; }
+  .ah-chat.seller.open.chat .window {
     display: block; }
 
 /*# sourceMappingURL=style.css.map */

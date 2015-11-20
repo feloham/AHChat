@@ -21,11 +21,11 @@
             </form>
         </div>
     </div>
+    <div class="chats">
+        <div class="heading">Список разговоров</div>
+        <div class="list"></div>
+    </div>
     <div class="fixed-btn">
-        <div class="chats">
-            <div class="heading">Список разговоров</div>
-            <div class="list"></div>
-        </div>
         <a class="chats-btn">Разговоры</a>
         <a class="open-btn">Открыть чат</a>
     </div>
