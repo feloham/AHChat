@@ -1,0 +1,122 @@
+.ah-chat{
+  font-family: sans-serif;
+  position: fixed;
+  bottom: 5px;
+  right: 5px;
+  font-size: 14px;
+  .fixed-btn{
+    background-color: #16225E;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    a{
+      color: #ffffff;
+      font-weight: bold;
+    }
+  }
+  .window{
+    min-width: 300px;
+    display: none;
+    overflow: hidden;
+    border: 1px solid #CBCFDA;
+    .heading{
+      background-color: #E0F4FF;
+      color: #000;
+      padding: 8px 8px 8px 15px;
+      line-height: 20px;
+      &:after{
+        clear: both;
+        content: "";
+        display: block;
+      }
+      button{
+        float: right;
+      }
+    }
+    .panel{
+      padding: 10px;
+      .auth{
+        text-align: center;
+        padding-bottom: 10px;
+        p{
+          font-size: 18px;
+          font-weight: bold;
+          color: #AAB8D4;
+          padding: 0 20px;
+        }
+        input[type="text"]{
+          width: 80%;
+          margin: 0;
+          padding: 5px 10px;
+          font-size: 14px;
+          border: 1px solid #16225E;
+        }
+        button{
+          background-color: #16225E;
+          margin-top: 20px;
+          border: 0;
+          padding: 10px 30px;
+          border-radius: 4px;
+          font-size: 16px;
+          font-weight: bold;
+          color: #fff;
+        }
+        &.error{
+          input[type="text"]{
+            border-color: #c8101a;
+          }
+        }
+      }
+      .chat{
+        display: none;
+        .messages{
+          width: 300px;
+          height: 400px;
+          overflow-y: scroll;
+          .message{
+            &.my{
+              text-align: right;
+            }
+          }
+        }
+      }
+    }
+    .footer{
+      padding: 10px;
+      display: none;
+      .textInp{
+        textarea{
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          max-height: 50px;
+          height: 99px;
+        }
+      }
+    }
+  }
+  &.open{
+    .window{
+      display: block;
+    }
+    .fixed-btn{
+      display: none;
+    }
+  }
+  &.chat{
+    .window{
+      .panel{
+        .auth{
+          display: none;
+        }
+        .chat{
+          display: block;
+        }
+      }
+      .footer{
+        display: block;
+      }
+    }
+  }
+}

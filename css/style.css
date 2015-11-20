@@ -1,0 +1,87 @@
+.ah-chat {
+  font-family: sans-serif;
+  position: fixed;
+  bottom: 5px;
+  right: 5px;
+  font-size: 14px; }
+  .ah-chat .fixed-btn {
+    background-color: #16225E;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center; }
+    .ah-chat .fixed-btn a {
+      color: #ffffff;
+      font-weight: bold; }
+  .ah-chat .window {
+    min-width: 300px;
+    display: none;
+    overflow: hidden;
+    border: 1px solid #CBCFDA; }
+    .ah-chat .window .heading {
+      background-color: #E0F4FF;
+      color: #000;
+      padding: 8px 8px 8px 15px;
+      line-height: 20px; }
+      .ah-chat .window .heading:after {
+        clear: both;
+        content: "";
+        display: block; }
+      .ah-chat .window .heading button {
+        float: right; }
+    .ah-chat .window .panel {
+      padding: 10px; }
+      .ah-chat .window .panel .auth {
+        text-align: center;
+        padding-bottom: 10px; }
+        .ah-chat .window .panel .auth p {
+          font-size: 18px;
+          font-weight: bold;
+          color: #AAB8D4;
+          padding: 0 20px; }
+        .ah-chat .window .panel .auth input[type="text"] {
+          width: 80%;
+          margin: 0;
+          padding: 5px 10px;
+          font-size: 14px;
+          border: 1px solid #16225E; }
+        .ah-chat .window .panel .auth button {
+          background-color: #16225E;
+          margin-top: 20px;
+          border: 0;
+          padding: 10px 30px;
+          border-radius: 4px;
+          font-size: 16px;
+          font-weight: bold;
+          color: #fff; }
+        .ah-chat .window .panel .auth.error input[type="text"] {
+          border-color: #c8101a; }
+      .ah-chat .window .panel .chat {
+        display: none; }
+        .ah-chat .window .panel .chat .messages {
+          width: 300px;
+          height: 400px;
+          overflow-y: scroll; }
+          .ah-chat .window .panel .chat .messages .message.my {
+            text-align: right; }
+    .ah-chat .window .footer {
+      padding: 10px;
+      display: none; }
+      .ah-chat .window .footer .textInp textarea {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        max-height: 50px;
+        height: 99px; }
+  .ah-chat.open .window {
+    display: block; }
+  .ah-chat.open .fixed-btn {
+    display: none; }
+  .ah-chat.chat .window .panel .auth {
+    display: none; }
+  .ah-chat.chat .window .panel .chat {
+    display: block; }
+  .ah-chat.chat .window .footer {
+    display: block; }
+
+/*# sourceMappingURL=style.css.map */
