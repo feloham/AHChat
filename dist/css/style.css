@@ -5,17 +5,33 @@
   right: 5px;
   font-size: 14px; }
   .ah-chat .chats {
+    width: 300px;
     display: none; }
+    .ah-chat .chats .heading {
+      background-color: #E0F4FF;
+      color: #000;
+      padding: 8px 8px 8px 15px;
+      line-height: 20px; }
+    .ah-chat .chats .list .chat a {
+      cursor: pointer;
+      display: block;
+      padding: 10px;
+      margin: 4px; }
+      .ah-chat .chats .list .chat a:hover {
+        background-color: #E0F4FF; }
   .ah-chat .fixed-btn {
     background-color: #16225E;
-    padding: 8px 15px;
     border-radius: 4px;
     cursor: pointer;
     text-align: center; }
+    .ah-chat .fixed-btn a {
+      padding: 8px 15px;
+      display: block; }
     .ah-chat .fixed-btn a.open-btn {
       color: #ffffff;
       font-weight: bold; }
     .ah-chat .fixed-btn a.chats-btn {
+      color: #ffffff;
       display: none; }
   .ah-chat .window {
     min-width: 300px;
@@ -66,8 +82,12 @@
           width: 300px;
           height: 400px;
           overflow-y: scroll; }
-          .ah-chat .window .panel .chat .messages .message.my {
-            text-align: right; }
+          .ah-chat .window .panel .chat .messages .message {
+            margin: 5px;
+            border: 1px solid #AAB8D4;
+            padding: 5px; }
+            .ah-chat .window .panel .chat .messages .message.my {
+              text-align: right; }
     .ah-chat .window .footer {
       padding: 10px;
       display: none; }
