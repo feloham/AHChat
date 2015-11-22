@@ -1,8 +1,8 @@
 (function(factory){
     if (typeof define === "function" && define.amd) {
-        define(["jquery"], factory);
+        define(["jquery", "nanoscroller"], factory);
     } else if (typeof exports === 'object') {
-        factory(require('jquery'));
+        factory(require('jquery', 'nanoscroller'));
     } else {
         factory(jQuery);
     }
@@ -24,6 +24,9 @@
         }else{
             return dateToDateString(dt);
         }
+    }
+    function stringMax(text, len){
+        return text.length>len?(text.substr(0 ,len-3)+'...'):text;
     }
 
     /**
@@ -54,7 +57,7 @@
                 $el.addClass('my');
             }
             this.$list.append($el);
-            this.$list.scrollTop(this.$list.scrollTop()+$el.outerHeight(true)+100);
+            this.$list.parent().nanoScroller().nanoScroller({ scroll: 'bottom' });
             return this;
         };
 
@@ -102,7 +105,12 @@
                 msg = new Message(msg);
             }
             this.messages[msg.attrs.id] = msg;
-            if(render) msg.render();
+            if(render){
+                msg.render();
+            }
+            for(var i=0; i<this._msgAddEvents.length; i++){
+                this._msgAddEvents[i](msg, this);
+            }
             return this;
         };
         /**
@@ -112,7 +120,7 @@
          * */
         this.add = function(arr){
             for(var i=0; i<arr.length; i++){
-                this.push(new Message(arr[i]), false);
+                this.push(new Message(arr[i]));
             }
             return this;
         };
@@ -153,8 +161,19 @@
             Message.prototype.$list.empty();
             for(var v in this.messages){
                 if(this.messages.hasOwnProperty(v)) this.messages[v].render();
-
             }
+        };
+        /**
+         * Callback storage
+         * */
+        this._msgAddEvents = [];
+        /**
+         * Binder for add message event
+         * @param callback {function} callback
+         * */
+        this.onAddMessage = function(callback){
+            this._msgAddEvents.push(callback);
+            return this;
         };
     };
     /**
@@ -189,9 +208,7 @@
             $.when(this.render(cfg.template)).done($.proxy(function(){
                 $(document.body).append(this.el);
                 this.setToken(cfg.token);
-                if(this.token){
-                    this.initSocket(cfg.url);
-                }
+                if(this.token) this.initSocket(cfg.url);
                 this.delegateEvents();
             },this));
             return this;
@@ -231,7 +248,8 @@
             return this.bindEvent('.fixed-btn > a', 'click', 'openWindow')
                 .bindEvent('.close-window', 'click', 'closeWindow')
                 .bindEvent('.auth-btn', 'click', 'authorization')
-                .bindEvent('form.textInp', 'submit', 'sendMessage');
+                .bindEvent('.send-btn', 'click', 'sendMessage')
+                .bindEvent('.msg-text', 'keypress', 'sendByEnter');
         };
 
         /**
@@ -286,22 +304,30 @@
          * */
         this.addChat = function(id, data){
             var chat = new Chat(id);
-            if(data){
-                if(data.messages){
-                    chat.add(data.messages);
-                }
-                chat.chatter = data.chatter;
-            }
+            if(data && data.chatter) chat.chatter = data.chatter;
             this.chats[chat.id] = chat;
             if(this.type == 'seller'){
                 var $list = this.$el.find('.chats .list');
                 var $chat = $(this.chatTpl);
                 var self = this;
-                $chat.find('a').text(chat.chatter).click(function(){
+                chat.onAddMessage(function(msg){
+                    $chat.find('p').text(stringMax(msg.attrs.text, cfg.lastMsgLength || 35));
+                    if(!self.$el.hasClass('open')){
+                        self.newChatMessage(chat, $chat);
+                    }
+                });
+                $chat.find('a').text(chat.chatter);
+                $chat.click(function(){
+                    $(this).removeClass('new');
                     self.openChat(chat.id);
                 });
                 $list.append($chat);
             }
+            if(data && data.messages) chat.add(data.messages);
+        };
+        this.newChatMessage = function(chat, $chat){
+            $chat.addClass('new');
+            this.$el.find('.fixed-btn .chats-btn').addClass('new');
         };
         /**
          * Get first chat
@@ -386,10 +412,14 @@
                         this.openChat();
                     }
                 }
+                this.$el.find('.chats-btn').removeClass('new');
             },
             /* @this AHChat */
             closeWindow: function(){
-                this.$el.removeClass('open').removeClass('chat');
+                if(this.type != 'seller' || !this.$el.hasClass('chat')){
+                    this.$el.removeClass('open');
+                }
+                this.$el.removeClass('chat');
             },
             /* @this AHChat */
             authorization: function(){
@@ -407,11 +437,10 @@
                 }
             },
             /* @this AHChat */
-            sendMessage: function(e){
-                e.preventDefault();
+            sendMessage: function(){
                 var $textarea = this.$el.find('.msg-text');
-                var text = $textarea.val();
-                $textarea.val('');
+                var text = $textarea.text();
+                $textarea.text('');
 
                 if(text){
                     var msg = this.currentChat.addBuffer({
@@ -423,6 +452,11 @@
                     return this;
                 }
                 return false;
+            },
+            sendByEnter: function(e){
+                if(e && e.keyCode == 13 && !e.shiftKey){
+                    this.evt('sendMessage');
+                }
             },
             /* @this AHChat */
             socketOpen: function(){

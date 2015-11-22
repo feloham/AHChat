@@ -112,6 +112,7 @@ var server = ws.createServer(function (conn) {
     conn.on("close", function (code, reason) {
         console.log("Connection closed");
         clearInterval(interval);
+        clearTimeout(timeout);
     });
 
     var interval = setInterval(function(){
@@ -124,7 +125,7 @@ var server = ws.createServer(function (conn) {
         conn.sendText(JSON.stringify({command: 'message', data: msg}));
     }, 5000);
 
-    setTimeout(function(){
+    var timeout = setTimeout(function(){
         var chat = {
             id: 18,
             chatter: 'Muuusa'

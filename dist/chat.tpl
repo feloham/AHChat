@@ -1,44 +1,51 @@
 <div class="ah-chat">
     <div class="window">
         <div class="heading">
-            <a class="sellerName"></a>
-            <button class="close-window">x</button>
+            <a class="sellerName">Авторизация</a>
+            <button class="close-window"></button>
         </div>
         <div class="panel">
             <div class="auth">
-                <p>Пожалуйста введите Ваше имя</p>
-                <input type="text">
+                <p>Пожалуйста<br> введите Ваше имя</p>
+                <div class="wrap">
+                    <input type="text">
+                </div>
                 <button class="auth-btn">Начать</button>
             </div>
-            <div class="chat">
-                <div class="messages"></div>
+            <div class="chat nano">
+                <div class="messages nano-content"></div>
             </div>
         </div>
         <div class="footer">
-            <form class="textInp">
-                <textarea class="msg-text"></textarea>
-                <button class="send-btn">Отправить</button>
-            </form>
+            <div class="textInp">
+                <div class="msg-text" contenteditable="true" placeholder="Введите сообщение..."></div>
+                <button class="send-btn"><i class="icon"></i></button>
+            </div>
         </div>
     </div>
     <div class="chats">
-        <div class="heading">Список разговоров</div>
+        <div class="heading">
+            <a>Список разговоров</a>
+            <button class="close-window"></button>
+        </div>
         <div class="list"></div>
     </div>
     <div class="fixed-btn">
-        <a class="chats-btn">Разговоры</a>
-        <a class="open-btn">Открыть чат</a>
+        <a class="chats-btn"><i class="icon"></i>Разговоры <span class="new-messages"></span></a>
+        <a class="open-btn"><i class="icon"></i>Написать сообщение</a>
     </div>
+    <!-- Template of message -->
     <div id="messageTpl">
         <div class="message">
             <div class="text"></div>
             <span class="date"></span>
         </div>
     </div>
+    <!-- Template of chat item -->
     <div id="chatTpl">
         <div class="chat">
-            <span class="status"></span>
-            <a></a>
+            <a></a><span class="status"></span>
+            <p></p>
         </div>
     </div>
 </div>

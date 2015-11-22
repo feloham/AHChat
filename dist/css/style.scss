@@ -1,67 +1,129 @@
 .ah-chat{
   font-family: sans-serif;
   position: fixed;
-  bottom: 5px;
-  right: 5px;
+  bottom:0;
+  right: 0;
   font-size: 14px;
-  .chats{
-    width: 300px;
-    display: none;
-    .heading{
-      background-color: #E0F4FF;
-      color: #000;
-      padding: 8px 8px 8px 15px;
-      line-height: 20px;
-    }
-    .list{
-      .chat{
-        a{
-          cursor: pointer;
-          display: block;
-          padding: 10px;
-          margin: 4px;
-          &:hover{
-            background-color: #E0F4FF;
+  &.chat{
+    .window{
+      .heading{
+        button.close-window{
+          float: left;
+          background: none;
+          width: 32px;
+          height: 32px;
+          padding: 0;
+          margin-bottom: -6px;
+          margin-top: -3px;
+          margin-left: -10px;
+          margin-right: 10px;
+          &:before{
+            background: transparent url("../icons.png") no-repeat;
+            width: 32px;
+            height: 32px;
+            background-position: 0 -32px;
           }
         }
       }
     }
   }
-  .fixed-btn{
-    background-color: #16225E;
-    border-radius: 4px;
-    cursor: pointer;
-    text-align: center;
-    a{
-      padding: 8px 15px;
-      display: block;
-    }
-    a.open-btn{
-      color: #ffffff;
-      font-weight: bold;
-    }
-    a.chats-btn{
-      color: #ffffff;
-      display: none;
+  .chats{
+    display: none;
+    .list{
+      .chat{
+        padding: 12px;
+        margin: 8px;
+        cursor: pointer;
+        &:hover{
+          background-color: #eaeaea;
+        }
+        &.new{
+          p{
+            color: #fe9500;
+          }
+        }
+        a{
+          font-size: 16px;
+          font-weight: bold;
+          color: #010101;
+        }
+        p{
+          margin: 0;
+          font-size: 13px;
+          color: #999999;
+        }
+      }
     }
   }
-  .window{
-    min-width: 300px;
+  .fixed-btn{
+    background-color: #018af4;
+    border-radius: 4px 4px 0 0;
+    cursor: pointer;
+    width: 280px;
+    line-height: 32px;
+    &:hover{
+      background-color: #2fa3fc;
+    }
+    a{
+      padding: 8px 20px 8px 15px;
+      display: block;
+      color: #ffffff;
+      font-weight: bold;
+      .icon{
+        float: left;
+        margin-right: 15px;
+      }
+    }
+    a.chats-btn{
+      display: none;
+      .new-messages{
+        float: right;
+        background-color: #ffe21d;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-top: 11px;
+        display: none;
+      }
+      &.new{
+        .new-messages{
+          display: block;
+        }
+      }
+    }
+  }
+  .chats, .window{
+    width: 300px;
     display: none;
     overflow: hidden;
     border: 1px solid #CBCFDA;
+    border-radius: 4px 4px 0 0;
     .heading{
-      background-color: #E0F4FF;
-      color: #000;
-      padding: 8px 8px 8px 15px;
-      line-height: 20px;
+      background-color: #018af4;
+      color: #ffffff;
+      padding: 12px 10px 12px 20px;
+      line-height: 26px;
+      font-size: 18px;
+      font-weight: bold;
       &:after{
         clear: both;
         content: "";
         display: block;
       }
-      button{
+      .close-window{
+        border: 0;
         float: right;
+        background-color: #3fabff;
+        width: 26px;
+        height: 26px;
+        text-align: center;
+        &:before{
+          content: "";
+          display: inline-block;
+          width: 80%;
+          height: 3px;
+          background-color: #ffffff;
+        }
       }
     }
     .panel{
@@ -69,6 +131,14 @@
       .auth{
         text-align: center;
         padding-bottom: 10px;
+        .wrap{
+          background-color: #e5e5e5;
+          padding: 10px;
+          margin: 0 -10px;
+          &.error{
+            background-color: #ffa7a7;
+          }
+        }
         p{
           font-size: 18px;
           font-weight: bold;
@@ -76,55 +146,83 @@
           padding: 0 20px;
         }
         input[type="text"]{
-          width: 80%;
-          margin: 0;
-          padding: 5px 10px;
-          font-size: 14px;
-          border: 1px solid #16225E;
+          width: 90%;
+          font-size: 15px;
+          padding: 7px 4%;
+          border: 0;
+          color: #4A4A4A;
+          text-align: center;
+          font-weight: bold;
         }
         button{
-          background-color: #16225E;
+          background-color: #018af4;
           margin-top: 20px;
           border: 0;
-          padding: 10px 30px;
+          padding: 10px 40px;
           border-radius: 4px;
           font-size: 16px;
           font-weight: bold;
           color: #fff;
         }
-        &.error{
-          input[type="text"]{
-            border-color: #c8101a;
-          }
-        }
       }
       .chat{
         display: none;
+        height: 380px;
+        padding-right: 5px;
         .messages{
-          width: 300px;
-          height: 400px;
           overflow-y: scroll;
+          padding-right: 8px;
           .message{
-            margin: 5px;
-            border: 1px solid #AAB8D4;
-            padding: 5px;
+            margin: 5px 5px 15px 5px;
+            background: #f3f3f3;
+            padding: 12px;
+            border-radius: 8px;
+            color: #737373;
+            font-size: 14px;
+            .date{
+              font-size: 12px;
+              margin-bottom: -2px;
+              text-align: right;
+              display: block;
+              color: #B3B3B3;
+              margin-top: 5px;
+            }
             &.my{
               text-align: right;
+              background-color: #fff;
             }
           }
         }
       }
     }
     .footer{
+      position: relative;
+      background-color: #e5e5e5;
       padding: 10px;
       display: none;
       .textInp{
-        textarea{
-          width: 100%;
-          margin: 0;
-          padding: 0;
-          max-height: 50px;
-          height: 99px;
+        .msg-text{
+          background-color: #fff;
+          padding: 10px;
+          margin-right: 18px;
+          outline: none;
+        }
+      }
+      .send-btn{
+        outline: none;
+        z-index: 3;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        margin-top: -20px;
+        padding: 2px;
+        background: #018af4;
+        border: 0;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        .icon{
+          background-position: -31px 1px;
         }
       }
     }
@@ -181,6 +279,20 @@
           display: block;
         }
       }
+    }
+  }
+  i.icon{
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    background: url("../icons.png") no-repeat;
+  }
+  button{
+    cursor: pointer;
+  }
+  .nano{
+    > .nano-pane{
+      width: 7px;
     }
   }
 }

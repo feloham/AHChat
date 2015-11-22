@@ -1,0 +1,7 @@
+{
+    "name": "AHChat_server",
+    "version": "0.1.0",
+    "dependencies": {
+        "nodejs-websocket": ">=1.4.0"
+    }
+}
