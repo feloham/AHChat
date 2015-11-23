@@ -223,7 +223,8 @@
          * @return {jQuery.Deferred}
          * */
         this.render = function(template){
-            return $.get(template, $.proxy(function(tpl){
+            var df = $.Deferred();
+            this.get(template, $.proxy(function(tpl){
                 if(tpl){
                     this.$el = $(tpl);
                     this.el = this.$el.get(0);
@@ -239,8 +240,35 @@
                     $chatTpl.remove();
 
                     this.$el.addClass(this.type);
+
+                    df.resolve();
                 }
-            },this));
+            } ,this));
+            return df.promise();
+        };
+        /**
+         * Ajax
+         * @param url {string} url
+         * @param success {function} callback
+         * @param error {function} callback
+         * @return {XMLHttpRequest}
+         * */
+        this.get = function(url, success, error){
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+
+            xhr.send();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState != 4) return;
+
+                if (xhr.status != 200) {
+                    if(error) error(xhr.responseText, xhr);
+                } else {
+                    if(success) success(xhr.responseText, xhr);
+                }
+
+            };
+            return xhr;
         };
 
         /**
