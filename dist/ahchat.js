@@ -57,7 +57,10 @@
                 $el.addClass('my');
             }
             this.$list.append($el);
-            this.$list.parent().nanoScroller().nanoScroller({ scroll: 'bottom' });
+            var $list = this.$list.parent().nanoScroller();
+            if(!this._msgHover){
+                $list.nanoScroller({ scroll: 'bottom' });
+            }
             return this;
         };
 
@@ -249,7 +252,9 @@
                 .bindEvent('.close-window', 'click', 'closeWindow')
                 .bindEvent('.auth-btn', 'click', 'authorization')
                 .bindEvent('.send-btn', 'click', 'sendMessage')
-                .bindEvent('.msg-text', 'keypress', 'sendByEnter');
+                .bindEvent('.msg-text', 'keypress', 'sendByEnter')
+                .bindEvent('.messages', 'mouseover', 'messagesHover')
+                .bindEvent('.messages', 'mouseleave', 'messagesOut');
         };
 
         /**
@@ -453,10 +458,27 @@
                 }
                 return false;
             },
+            /**
+             * Send message by press enter
+             * @param e {Event}
+             * */
             sendByEnter: function(e){
                 if(e && e.keyCode == 13 && !e.shiftKey){
                     this.evt('sendMessage');
                 }
+                return this;
+            },
+            /**
+             * When list of messages hovered
+             * */
+            messagesHover: function(){
+                Message.prototype._msgHover = true;
+            },
+            /**
+             * When list of messages un-hovered
+             * */
+            messagesOut: function(){
+                Message.prototype._msgHover = false;
             },
             /* @this AHChat */
             socketOpen: function(){
