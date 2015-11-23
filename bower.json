@@ -1,7 +1,7 @@
 {
   "name": "AHChat",
   "description": "Websocket chat",
-  "version": "0.0.9",
+  "version": "0.1.1",
   "main": [
     "dist/ahchat.js",
     "dist/css/style.scss"
