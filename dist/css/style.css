@@ -96,6 +96,7 @@
           height: 3px;
           background-color: #ffffff; }
     .ah-chat .chats .panel, .ah-chat .window .panel {
+      position: relative;
       background-color: #ffffff;
       padding: 10px; }
       .ah-chat .chats .panel .auth, .ah-chat .window .panel .auth {
@@ -135,6 +136,12 @@
           display: none; }
         .ah-chat .chats .panel .auth.unavailable .unavailable, .ah-chat .window .panel .auth.unavailable .unavailable {
           display: block; }
+        .ah-chat .chats .panel .auth .notOnline, .ah-chat .window .panel .auth .notOnline {
+          display: none; }
+        .ah-chat .chats .panel .auth.notOnline .wrap, .ah-chat .chats .panel .auth.notOnline .auth-btn, .ah-chat .chats .panel .auth.notOnline p, .ah-chat .window .panel .auth.notOnline .wrap, .ah-chat .window .panel .auth.notOnline .auth-btn, .ah-chat .window .panel .auth.notOnline p {
+          display: none; }
+        .ah-chat .chats .panel .auth.notOnline .notOnline, .ah-chat .window .panel .auth.notOnline .notOnline {
+          display: block; }
       .ah-chat .chats .panel .chat, .ah-chat .window .panel .chat {
         display: none;
         height: 380px;
@@ -159,6 +166,19 @@
             .ah-chat .chats .panel .chat .messages .message.my, .ah-chat .window .panel .chat .messages .message.my {
               text-align: right;
               background-color: #fff; }
+      .ah-chat .chats .panel .error, .ah-chat .window .panel .error {
+        display: none;
+        padding: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #c8101a;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: left;
+        position: absolute;
+        z-index: 10;
+        left: 0;
+        bottom: 0;
+        width: 100%; }
     .ah-chat .chats .footer, .ah-chat .window .footer {
       position: relative;
       background-color: #e5e5e5;

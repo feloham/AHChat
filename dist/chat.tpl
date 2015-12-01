@@ -5,7 +5,9 @@
             <button class="close-window"></button>
         </div>
         <div class="panel">
+            <div class="error"></div>
             <div class="auth">
+                <p class="notOnline">Продавец в данный момент не в сети, пожалуйста попробуйте позднее...</p>
                 <p class="unavailable">Извините, чат в данный момент не доступен.<br>Попытка соединения...</p>
                 <p>Пожалуйста<br> введите Ваше имя</p>
                 <div class="wrap">

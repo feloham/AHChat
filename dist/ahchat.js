@@ -179,28 +179,46 @@
             return this;
         };
     };
+
+    /**
+     * Array of errors, where key is code of error and value is handle method.
+     */
+    var ERRORS = {
+        'CHAT_NOT_FOUND': {
+            method: 'defaultError',
+            text: 'Чат не найден'
+        },
+        'USER_IS_NOT_ONLINE': {
+            method: 'notOnline',
+            text: 'Пользователь не в сети'
+        },
+        'USER_IS_NOT_SELLER': {
+            method: 'notPermission',
+            text: 'Вы не можете авторизоваться как продавец'
+        },
+        'USER_NOT_FOUND': {
+            method: 'oldToken',
+            text: 'Сессия устарела, пожалуйста авторизуйтесь заново.'
+        },
+        'CHAT_ID_IS_REQUIRED': {
+            method: 'defaultError',
+            text: 'Chat id is required'
+        },
+        'TEXT_IS_REQUIRED': {
+            method: 'defaultError',
+            text: 'Text is required'
+        },
+        'DATE_IS_REQUIRED': {
+            method: 'defaultError',
+            text: 'Date is required'
+        }
+    };
+
     /**
      * Chat class
      * @param cfg {object} configuration
      * */
     var AHChat = function(cfg){
-        //DOM element
-        this.el = null;
-        //jQuery element
-        this.$el = null;
-        //WebSocket
-        this.ws = null;
-        //Template of message
-        this.msgTpl = '';
-        //Auth token
-        this.token = null;
-        //chats
-        this.chats = {};
-        //type of chat
-        this.type = cfg.id?'seller':'user';
-        //Socket is opened
-        this.socketOpened = false;
-
         /**
          * Initialize. Render, open socket and delegation events.
          * @see this.setToken
@@ -211,7 +229,9 @@
         this.initialize = function(){
             // #>1
             $.when(this.render(cfg.template)).done($.proxy(function(){
-                $(document.body).append(this.el);
+                var $body = $(document.body);
+                $body.find('.ah-chat').remove();
+                $body.append(this.el);
                 this.setToken(cfg.token || localStorage.getItem('chatToken'));
                 if(this.token) this.initSocket(cfg.url);
                 this.delegateEvents();
@@ -284,7 +304,29 @@
                 .bindEvent('.send-btn', 'click', 'sendMessage')
                 .bindEvent('.msg-text', 'keypress', 'sendByEnter')
                 .bindEvent('.messages', 'mouseover', 'messagesHover')
-                .bindEvent('.messages', 'mouseleave', 'messagesOut');
+                .bindEvent('.messages', 'mouseleave', 'messagesOut')
+                .bindEvent('.panel > .error', 'click', 'closeError');
+        };
+
+        this.reset = function(){
+            //DOM element
+            this.el = null;
+            //jQuery element
+            this.$el = null;
+            //WebSocket
+            this.ws = null;
+            //Template of message
+            this.msgTpl = '';
+            //Auth token
+            this.token = null;
+            //chats
+            this.chats = {};
+            //type of chat
+            this.type = cfg.id?'seller':'user';
+            //Socket is opened
+            this.socketOpened = false;
+            //Timer to reconnect
+            this._reconnect = 0;
         };
 
         /**
@@ -294,15 +336,15 @@
          * @see this.ws
          * */
         this.initSocket = function(url){
-            if(url){
+            if(url && !this.ws){
                 this.ws = new WebSocket(url);
                 var self = this;
 
-                this.ws.onopen = function(){
-                    self.evt('socketOpen');
+                this.ws.onopen = function(res){
+                    self.evt('socketOpen', res);
                 };
-                this.ws.onclose = function(){
-                    self.evt('socketClose');
+                this.ws.onclose = function(e){
+                    self.evt('socketClose', e);
                 };
                 this.ws.onmessage = function(res){
                     self.evt('socketMessage', res);
@@ -511,39 +553,50 @@
             messagesOut: function(){
                 Message.prototype._msgHover = false;
             },
+            /**
+             * Close error text
+             */
+            closeError: function(){
+                this.$el.find('.panel > .error').fadeOut(200);
+            },
             /* @this AHChat */
             socketOpen: function(){
                 // #>2.2.1
                 this.socketOpened = true;
-                this.evt('serverAvailable');
                 this.req('auth', this.token, this.name, cfg.sellerId, cfg.id);
             },
             /* @this AHChat */
             socketMessage: function(res){
                 if(res && res.data){
                     var data = JSON.parse(res.data);
-                    if(data.command && this.response[data.command]){
+                    if(data.error){
+                        var text = ERRORS[data.error]?ERRORS[data.error].text:'';
+                        this.err(ERRORS[data.error]?ERRORS[data.error].method:'defaultError', text, data);
+                    }else if(data.command && this.response[data.command]){
                         this.res(data.command, data.data);
                     }
                 }
             },
             /* @this AHChat */
             socketClose: function(){
-
+                this.evt('serverUnavailable');
             },
             /* @this AHChat */
             socketError: function(e){
                 e.preventDefault();
                 console.warn('AHChat: You can not open a connection, the server is unavailable.');
-                this.setToken(null);
                 this.evt('serverUnavailable');
                 return true;
             },
-            /* @this AHChat */
+            /**
+             * When cant connect to server
+             * @see this._reconnect
+             * @this AHChat
+             */
             serverUnavailable: function(){
-                if(!this._reconnect){
+                if(!this._reconnect && !this._dontreconnect){
                     var self = this;
-                    var tryis = cfg.reconnectCount || 10;
+                    var tryis = Number(cfg.reconnectCount || 10);
 
                     this._reconnect = setInterval(function(){
                         self.initSocket(cfg.url);
@@ -554,14 +607,21 @@
                         }
                     }, cfg.reconnectTime || 3000);
 
+                    this.$el.removeClass('chat');
                     this.$el.find('.auth').addClass('unavailable');
                 }
             },
-            /* @this AHChat */
+            /**
+             * When try to connect is success
+             * @see this._reconnect
+             * @this AHChat
+             */
             serverAvailable: function(){
                 clearInterval(this._reconnect);
                 delete this._reconnect;
+                this._dontreconnect = null;
                 this.$el.find('.auth').removeClass('unavailable');
+
             }
         };
 
@@ -572,6 +632,57 @@
          * */
         this.evt = function(){
             return this.triggerMethod('event', arguments);
+        };
+
+        /**
+         * Section for handle errors
+         */
+        this.errors = {
+            /**
+             * Default handler for errors
+             * @this AHChat
+             * @param text {string} error text
+             */
+            defaultError: function(text){
+                this.$el.find('.panel > .error').text(text).fadeIn(200);
+            },
+            /**
+             * If chatter is offline
+             * @this AHChat
+             */
+            notOnline: function(){
+                this.$el.removeClass('chat');
+                this.$el.find('.auth').addClass('notOnline');
+            },
+            /**
+             * If user have not permisson
+             * @this AHChat
+             * @param text {string} error text
+             */
+            notPermission: function(text){
+                this.err('defaultError', text);
+                this.$el.removeClass('chat');
+            },
+            /**
+             * If user token is old
+             * @this AHChat
+             */
+            oldToken: function(){
+                this._dontreconnect = true;
+                this.ws.close(3003);
+                this.setToken('');
+                this.reset();
+                this.initialize();
+            }
+        };
+
+        /**
+         * Trigger for errors section
+         * @see this.event
+         * @see this.triggerMethod
+         * */
+        this.err = function(){
+            return this.triggerMethod('errors', arguments);
         };
 
         /**
@@ -624,8 +735,10 @@
                 }
                 if(data.token){
                     this.setToken(data.token);
-                    this.openChat();
                 }
+                this.openChat();
+
+                this.evt('serverAvailable');
             },
             /* @this AHChat */
             message: function(data){
@@ -653,6 +766,8 @@
         this.res = function(){
             return this.triggerMethod('response', arguments);
         };
+
+        this.reset();
     };
 
     return AHChat;
