@@ -6,6 +6,7 @@
         </div>
         <div class="panel">
             <div class="auth">
+                <p class="unavailable">Извините, чат в данный момент не доступен.<br>Попытка соединения...</p>
                 <p>Пожалуйста<br> введите Ваше имя</p>
                 <div class="wrap">
                     <input type="text">

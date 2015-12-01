@@ -127,6 +127,7 @@
       }
     }
     .panel{
+      background-color: #ffffff;
       padding: 10px;
       .auth{
         text-align: center;
@@ -163,6 +164,17 @@
           font-size: 16px;
           font-weight: bold;
           color: #fff;
+        }
+        .unavailable{
+          display: none;
+        }
+        &.unavailable{
+          .wrap, .auth-btn, p{
+            display: none;
+          }
+          .unavailable{
+            display: block;
+          }
         }
       }
       .chat{

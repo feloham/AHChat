@@ -96,6 +96,7 @@
           height: 3px;
           background-color: #ffffff; }
     .ah-chat .chats .panel, .ah-chat .window .panel {
+      background-color: #ffffff;
       padding: 10px; }
       .ah-chat .chats .panel .auth, .ah-chat .window .panel .auth {
         text-align: center;
@@ -128,6 +129,12 @@
           font-size: 16px;
           font-weight: bold;
           color: #fff; }
+        .ah-chat .chats .panel .auth .unavailable, .ah-chat .window .panel .auth .unavailable {
+          display: none; }
+        .ah-chat .chats .panel .auth.unavailable .wrap, .ah-chat .chats .panel .auth.unavailable .auth-btn, .ah-chat .chats .panel .auth.unavailable p, .ah-chat .window .panel .auth.unavailable .wrap, .ah-chat .window .panel .auth.unavailable .auth-btn, .ah-chat .window .panel .auth.unavailable p {
+          display: none; }
+        .ah-chat .chats .panel .auth.unavailable .unavailable, .ah-chat .window .panel .auth.unavailable .unavailable {
+          display: block; }
       .ah-chat .chats .panel .chat, .ah-chat .window .panel .chat {
         display: none;
         height: 380px;

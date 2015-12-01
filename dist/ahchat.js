@@ -198,6 +198,8 @@
         this.chats = {};
         //type of chat
         this.type = cfg.id?'seller':'user';
+        //Socket is opened
+        this.socketOpened = false;
 
         /**
          * Initialize. Render, open socket and delegation events.
@@ -210,7 +212,7 @@
             // #>1
             $.when(this.render(cfg.template)).done($.proxy(function(){
                 $(document.body).append(this.el);
-                this.setToken(cfg.token);
+                this.setToken(cfg.token || localStorage.getItem('chatToken'));
                 if(this.token) this.initSocket(cfg.url);
                 this.delegateEvents();
             },this));
@@ -295,6 +297,7 @@
             if(url){
                 this.ws = new WebSocket(url);
                 var self = this;
+
                 this.ws.onopen = function(){
                     self.evt('socketOpen');
                 };
@@ -305,7 +308,7 @@
                     self.evt('socketMessage', res);
                 };
                 this.ws.onerror = function(res){
-                    self.evt('socketError', res);
+                    return self.evt('socketError', res);
                 };
                 return this;
             }
@@ -399,7 +402,7 @@
          * @param token {string} token
          * */
         this.setToken = function(token){
-            if(token){
+            if(typeof token != 'undefined'){
                 this.token = token;
                 localStorage.setItem('chatToken', this.token);
                 return this;
@@ -441,7 +444,7 @@
             openWindow: function(){
                 this.$el.addClass('open');
                 if(this.type == 'user'){
-                    if(this.token){
+                    if(this.token && this.socketOpened){
                         this.openChat();
                     }
                 }
@@ -511,6 +514,8 @@
             /* @this AHChat */
             socketOpen: function(){
                 // #>2.2.1
+                this.socketOpened = true;
+                this.evt('serverAvailable');
                 this.req('auth', this.token, this.name, cfg.sellerId, cfg.id);
             },
             /* @this AHChat */
@@ -527,8 +532,36 @@
 
             },
             /* @this AHChat */
-            socketError: function(){
+            socketError: function(e){
+                e.preventDefault();
+                console.warn('AHChat: You can not open a connection, the server is unavailable.');
+                this.setToken(null);
+                this.evt('serverUnavailable');
+                return true;
+            },
+            /* @this AHChat */
+            serverUnavailable: function(){
+                if(!this._reconnect){
+                    var self = this;
+                    var tryis = cfg.reconnectCount || 10;
 
+                    this._reconnect = setInterval(function(){
+                        self.initSocket(cfg.url);
+                        tryis--;
+                        if(tryis==0){
+                            clearInterval(self._reconnect);
+                            delete self._reconnect;
+                        }
+                    }, cfg.reconnectTime || 3000);
+
+                    this.$el.find('.auth').addClass('unavailable');
+                }
+            },
+            /* @this AHChat */
+            serverAvailable: function(){
+                clearInterval(this._reconnect);
+                delete this._reconnect;
+                this.$el.find('.auth').removeClass('unavailable');
             }
         };
 
