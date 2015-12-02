@@ -451,6 +451,11 @@
                 }
             }
             this.currentChat.render();
+            if(this.currentChat.status === false){
+                this.$el.find('.msg-text').removeAttr('contenteditable');
+            }else{
+                this.$el.find('.msg-text').attr('contenteditable', true);
+            }
             this.$el.find('.sellerName').text(this.currentChat.chatter);
 
             return this;
@@ -639,6 +644,16 @@
                 this._dontreconnect = null;
                 this.$el.find('.auth').removeClass('unavailable');
 
+            },
+            /**
+             * When chatter is online
+             * @param chat {Chat}
+             */
+            online: function(chat){
+                this.$el.find('.auth').removeClass('notOnline');
+                if(chat.id == this.currentChat.id){
+                    this.$el.find('.msg-text').attr('contenteditable', true);
+                }
             }
         };
 
@@ -688,6 +703,7 @@
                 this._dontreconnect = true;
                 this.ws.close(3003);
                 this.setToken('');
+                this.evt('serverAvailable');
                 this.reset();
                 this.initialize();
             }
@@ -772,6 +788,19 @@
             /* @this AHChat */
             chat: function(data){
                 this.addChat(data.id, data);
+            },
+            /* @this AHChat */
+            status: function(data){
+                if(data.chatId){
+                    var chat = this.chats[data.chatId];
+                    chat.status = data.status == true;
+
+                    if(chat.status){
+                        this.evt('online', chat);
+                    }else{
+                        this.err('notOnline');
+                    }
+                }
             }
         };
 

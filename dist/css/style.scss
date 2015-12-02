@@ -240,10 +240,14 @@
       display: none;
       .textInp{
         .msg-text{
-          background-color: #fff;
+          background-color: #f2f2f2;
           padding: 10px;
           margin-right: 18px;
           outline: none;
+          min-height: 17px;
+          &[contenteditable]{
+            background-color: #ffffff;
+          }
         }
       }
       .send-btn{

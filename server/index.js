@@ -113,6 +113,7 @@ var server = ws.createServer(function (conn) {
         console.log("Connection closed");
         clearInterval(interval);
         clearTimeout(timeout);
+        clearTimeout(timeout2);
     });
 
     var interval = setInterval(function(){
@@ -126,10 +127,10 @@ var server = ws.createServer(function (conn) {
     }, 5000);
 
     var timeout = setTimeout(function(){
-        var chat = {
-            id: 18,
-            chatter: 'Muuusa'
-        };
-        conn.sendText(JSON.stringify({command: 'chat', data: chat}));
+        conn.sendText(JSON.stringify({command: 'status', data: {chatId: 1, status: false}}));
     }, 3000);
+
+    var timeout2 = setTimeout(function(){
+        conn.sendText(JSON.stringify({command: 'status', data: {chatId: 1, status: true}}));
+    }, 15000);
 }).listen(8001);

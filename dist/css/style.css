@@ -185,10 +185,13 @@
       padding: 10px;
       display: none; }
       .ah-chat .chats .footer .textInp .msg-text, .ah-chat .window .footer .textInp .msg-text {
-        background-color: #fff;
+        background-color: #f2f2f2;
         padding: 10px;
         margin-right: 18px;
-        outline: none; }
+        outline: none;
+        min-height: 17px; }
+        .ah-chat .chats .footer .textInp .msg-text[contenteditable], .ah-chat .window .footer .textInp .msg-text[contenteditable] {
+          background-color: #ffffff; }
       .ah-chat .chats .footer .send-btn, .ah-chat .window .footer .send-btn {
         outline: none;
         z-index: 3;
