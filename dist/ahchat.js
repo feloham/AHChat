@@ -526,6 +526,7 @@
 
                 if(name){
                     this.name = name;
+                    this.initSocket(cfg.url);
                 }else{
                     $nameInp.parent().addClass('error');
                 }
