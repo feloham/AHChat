@@ -240,6 +240,18 @@
         };
 
         /**
+         * Destroy
+         */
+        this.destroy = function(){
+            this._dontreconnect = true;
+            clearInterval(this._reconnect);
+            this.ws.close(1000);
+            this.ws = null;
+            if(this.$el) this.$el.remove();
+            this.reset();
+        };
+
+        /**
          * Rendering chat. Request template and add him to DOM
          * @param template {string} url to template
          * @return {jQuery.Deferred}
@@ -332,10 +344,15 @@
         /**
          * Initialization of WebSocket
          * @param url {string} url of socket
+         * @param force {bool} force init socket
          * @see WebSocket
          * @see this.ws
          * */
-        this.initSocket = function(url){
+        this.initSocket = function(url, force){
+            if(force){
+                if(this.ws) this.ws.close(3008);
+                delete this.ws;
+            }
             if(url && !this.ws){
                 this.ws = new WebSocket(url);
                 var self = this;
@@ -509,7 +526,6 @@
 
                 if(name){
                     this.name = name;
-                    this.initSocket(cfg.url);
                 }else{
                     $nameInp.parent().addClass('error');
                 }
@@ -599,7 +615,7 @@
                     var tryis = Number(cfg.reconnectCount || 10);
 
                     this._reconnect = setInterval(function(){
-                        self.initSocket(cfg.url);
+                        self.initSocket(cfg.url, true);
                         tryis--;
                         if(tryis==0){
                             clearInterval(self._reconnect);
