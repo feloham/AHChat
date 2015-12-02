@@ -245,7 +245,7 @@
         this.destroy = function(){
             this._dontreconnect = true;
             clearInterval(this._reconnect);
-            this.ws.close(1000);
+            if(this.ws) this.ws.close(1000);
             this.ws = null;
             if(this.$el) this.$el.remove();
             this.reset();
