@@ -650,6 +650,7 @@
              * @param chat {Chat}
              */
             online: function(chat){
+                this.$el.addClass('chat');
                 this.$el.find('.auth').removeClass('notOnline');
                 if(chat.id == this.currentChat.id){
                     this.$el.find('.msg-text').attr('contenteditable', true);
