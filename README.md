@@ -97,14 +97,20 @@ For server realization you can see `dist/server/index.js`
 
 ### auth: authorization
    `token` - key of existing session, always required only for seller
+   
    `name` - string of client name, required for anonymous clients
+   
    `sellerId` - id of seller, always required for clients
+   
    `id` - your id if you seller, always required
    
 ### message: new message
    `text` - text of message, required
+   
    `clientDate` - timestamp of message send time, required
+   
    `chatId` - id of chat, will be gived from auth response, required
+   
    `my` - boolean, my or not my message, required
   
    
@@ -112,45 +118,54 @@ For server realization you can see `dist/server/index.js`
 
 ### auth: authorization
    `token` - see client request
+   
    `name` - will return if request have token
+   
    `chats` - array of chats, for client always one chat
    
 ### message: new message
    `text` - see request
+   
    `date` - timestamp of message
+   
    `chatId` - id of chat
+   
    `id` - id of message
+   
    `my` - of message is your
+   
    `clientDate` - returned as a confirmation of the request
    
 ### status: change status of chatter
    `status` - boolean, true = online, false - offline, its status of chatter
+   
    `chatId` - id of chat
    
 ### chat: new chat
    `id` - id of new chat
+   
    `chatter` - name of new chatter
    
 
 ## Server errors
 
-### CHAT_NOT_FOUND
+#### CHAT_NOT_FOUND
 Chat is not found (usually to message request)
 
-### USER_IS_NOT_ONLINE
+#### USER_IS_NOT_ONLINE
 User is not online (usually to message request)
 
-### USER_IS_NOT_SELLER
+#### USER_IS_NOT_SELLER
 User cant been authorized as seller (usually to authorization request)
 
-### USER_NOT_FOUND
+#### USER_NOT_FOUND
 User token not found, if clent have token in localStorage him will be removed
 
-### CHAT_ID_IS_REQUIRED
+#### CHAT_ID_IS_REQUIRED
 If message request have'nt chat id
 
-### TEXT_IS_REQUIRED
+#### TEXT_IS_REQUIRED
 If message request have'nt text
 
-### DATE_IS_REQUIRED
+#### DATE_IS_REQUIRED
 If message request have'nt clientDate
