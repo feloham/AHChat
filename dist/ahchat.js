@@ -701,10 +701,10 @@
              * @this AHChat
              */
             oldToken: function(){
+                this.evt('serverAvailable');
                 this._dontreconnect = true;
                 this.ws.close(3003);
                 this.setToken('');
-                this.evt('serverAvailable');
                 this.reset();
                 this.initialize();
             }
