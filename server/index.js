@@ -114,6 +114,7 @@ var server = ws.createServer(function (conn) {
         clearInterval(interval);
         clearTimeout(timeout);
         clearTimeout(timeout2);
+        clearTimeout(timeout3);
     });
 
     var interval = setInterval(function(){
@@ -133,4 +134,12 @@ var server = ws.createServer(function (conn) {
     var timeout2 = setTimeout(function(){
         conn.sendText(JSON.stringify({command: 'status', data: {chatId: 1, status: true}}));
     }, 15000);
+
+    var timeout3 = setTimeout(function(){
+        var chat = {
+            id: 55,
+            chatter: 'New chatter'
+        };
+        conn.sendText(JSON.stringify({command: 'chat', data: chat}));
+    }, 5000);
 }).listen(8001);

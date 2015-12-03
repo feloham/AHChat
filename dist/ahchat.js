@@ -228,7 +228,7 @@
          * */
         this.initialize = function(){
             // #>1
-            $.when(this.render(cfg.template)).done($.proxy(function(){
+            $.when(this.render(cfg.template || 'dist/chat.tpl')).done($.proxy(function(){
                 var $body = $(document.body);
                 $body.find('.ah-chat').remove();
                 $body.append(this.el);
