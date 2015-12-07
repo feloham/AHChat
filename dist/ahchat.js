@@ -625,7 +625,6 @@
                         tryis--;
                         if(tryis==0){
                             clearInterval(self._reconnect);
-                            delete self._reconnect;
                         }
                     }, cfg.reconnectTime || 3000);
 
