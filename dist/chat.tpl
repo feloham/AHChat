@@ -31,6 +31,11 @@
             <a>Список разговоров</a>
             <button class="close-window"></button>
         </div>
+        <div class="empty-list">
+            <p>
+                У Вас еще нет диалогов
+            </p>
+        </div>
         <div class="list"></div>
     </div>
     <div class="fixed-btn">

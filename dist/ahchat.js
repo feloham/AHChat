@@ -1,3 +1,5 @@
+"use strict";
+
 (function(factory){
     if (typeof define === "function" && define.amd) {
         define(["jquery", "nanoscroller"], factory);
@@ -7,9 +9,19 @@
         factory(jQuery);
     }
 })(function($){
+    /**
+     * Adding leading zero if necessary (1 -> 01)
+     * @param char {string|number}
+     * @returns {string}
+     */
     function doubleString(char){
         return String(char).length>1?char:'0'+char;
     }
+    /**
+     * Format date to "10.11.2011"
+     * @param date {Date}
+     * @returns {string}
+     */
     function dateToDateString(date){
         return [
             doubleString(date.getDate()),
@@ -17,6 +29,12 @@
             doubleString(date.getFullYear())
         ].join('.');
     }
+    /**
+     * Convert timestamp to time string
+     * if date of timestamp == current date, return in format "12:00:05", else "24.11.2015"
+     * @param timestamp {int}
+     * @returns {string}
+     */
     function timestampToDateString(timestamp){
         var dt = new Date(timestamp*1000);
         if(new Date().getDate() == dt.getDate()){
@@ -25,6 +43,12 @@
             return dateToDateString(dt);
         }
     }
+    /**
+     * Cut string if its length greater than length
+     * @param text {string}
+     * @param len {int}
+     * @returns {string}
+     */
     function stringMax(text, len){
         return text.length>len?(text.substr(0 ,len-3)+'...'):text;
     }
@@ -104,7 +128,7 @@
          * */
         this.push = function(msg, render){
             if(!(msg instanceof Message)){
-                msg.chatId = this.id;
+                msg['chatId'] = this.id;
                 msg = new Message(msg);
             }
             this.messages[msg.attrs.id] = msg;
@@ -152,7 +176,7 @@
          * @return {Message} message
          * */
         this.addBuffer = function(msg){
-            msg.chatId = this.id;
+            msg['chatId'] = this.id;
             var message = new Message(msg);
             this.messageBuffer[message.attrs.clientDate] = message;
             return message;
@@ -215,10 +239,30 @@
     };
 
     /**
-     * Chat class
+     * i18n
+     * @type {object}
+     */
+    var TEXT = {
+        user_not_online: 'Пользователь не в сети'
+    };
+
+    /**
+     * AHChat, Chat class
      * @param cfg {object} configuration
      * */
     var AHChat = function(cfg){
+        cfg = $.extend({
+            lastMsgLength: 35,
+            template: 'dist/chat.tpl',
+            reconnectCount: 10,
+            reconnectTime: 3000,
+            ERRORS: null,
+            TEXT: null
+        }, cfg || {});
+
+        if(cfg.ERRORS) ERRORS = cfg.ERRORS;
+        if(cfg.TEXT) TEXT = cfg.TEXT;
+
         /**
          * Initialize. Render, open socket and delegation events.
          * @see this.setToken
@@ -228,14 +272,14 @@
          * */
         this.initialize = function(){
             // #>1
-            $.when(this.render(cfg.template || 'dist/chat.tpl')).done($.proxy(function(){
+            $.when(this.render(cfg.template).done($.proxy(function(){
                 var $body = $(document.body);
                 $body.find('.ah-chat').remove();
                 $body.append(this.el);
                 this.setToken(cfg.token || localStorage.getItem('chatToken'));
                 if(this.token) this.initSocket(cfg.url);
                 this.delegateEvents();
-            },this));
+            },this)));
             return this;
         };
 
@@ -406,7 +450,7 @@
                 var $chat = $(this.chatTpl);
                 var self = this;
                 chat.onAddMessage(function(msg){
-                    $chat.find('p').text(stringMax(msg.attrs.text, cfg.lastMsgLength || 35));
+                    $chat.find('p').text(stringMax(msg.attrs.text, cfg.lastMsgLength));
                     if(!self.$el.hasClass('open')){
                         self.newChatMessage(chat, $chat);
                     }
@@ -420,9 +464,22 @@
             }
             if(data && data.messages) chat.add(data.messages);
         };
+        /**
+         * Set chat element in list status 'new'
+         * @param chat {Chat}
+         * @param $chat {jQuery} element in list
+         */
         this.newChatMessage = function(chat, $chat){
             $chat.addClass('new');
             this.$el.find('.fixed-btn .chats-btn').addClass('new');
+        };
+        /**
+         * Chat is current?
+         * @param chat {Chat}
+         * @returns {boolean}
+         */
+        this.isCurrentChat = function(chat){
+            return this.currentChat?(chat.id == this.currentChat.id):false;
         };
         /**
          * Get first chat
@@ -440,23 +497,22 @@
          * Enable chat functionality
          * */
         this.openChat = function(chatId){
-            this.$el.addClass('chat');
+            this.$el.addClass(this.currentChat?'chat':'have-not-chat');
+
             if(chatId){
                 this.currentChat = this.chats[chatId];
             }else{
                 this.currentChat = this.firstChat();
-                if(!this.currentChat){
-                    this.addChat(0, null);
-                    this.currentChat = this.firstChat();
+            }
+            if(this.currentChat){
+                this.currentChat.render();
+                if(this.currentChat.status === false){
+                    this.$el.find('.msg-text').removeAttr('contenteditable').html(TEXT['user_not_online']+'...');
+                }else{
+                    this.$el.find('.msg-text').attr('contenteditable', true).html('');
                 }
+                this.$el.find('.sellerName').text(this.currentChat.chatter);
             }
-            this.currentChat.render();
-            if(this.currentChat.status === false){
-                this.$el.find('.msg-text').removeAttr('contenteditable');
-            }else{
-                this.$el.find('.msg-text').attr('contenteditable', true);
-            }
-            this.$el.find('.sellerName').text(this.currentChat.chatter);
 
             return this;
         };
@@ -506,6 +562,7 @@
         this.event = {
             /* @this AHChat */
             openWindow: function(){
+                if(this.currentChat) this.$el.removeClass('have-not-chat');
                 this.$el.addClass('open');
                 if(this.type == 'user'){
                     if(this.token && this.socketOpened){
@@ -539,6 +596,8 @@
             /* @this AHChat */
             sendMessage: function(){
                 var $textarea = this.$el.find('.msg-text');
+                if(!$textarea.attr('contenteditable')) return false;
+
                 var text = $textarea.text();
                 $textarea.text('');
 
@@ -554,6 +613,7 @@
                 return false;
             },
             /**
+             * @this AHChat
              * Send message by press enter
              * @param e {Event}
              * */
@@ -618,7 +678,7 @@
             serverUnavailable: function(){
                 if(!this._reconnect && !this._dontreconnect){
                     var self = this;
-                    var tryis = Number(cfg.reconnectCount || 10);
+                    var tryis = Number(cfg.reconnectCount);
 
                     this._reconnect = setInterval(function(){
                         self.initSocket(cfg.url, true);
@@ -626,7 +686,7 @@
                         if(tryis==0){
                             clearInterval(self._reconnect);
                         }
-                    }, cfg.reconnectTime || 3000);
+                    }, cfg.reconnectTime);
 
                     this.$el.removeClass('chat');
                     this.$el.find('.auth').addClass('unavailable');
@@ -646,13 +706,14 @@
             },
             /**
              * When chatter is online
+             * @this AHChat
              * @param chat {Chat}
              */
             online: function(chat){
                 this.$el.addClass('chat');
                 this.$el.find('.auth').removeClass('notOnline');
-                if(chat.id == this.currentChat.id){
-                    this.$el.find('.msg-text').attr('contenteditable', true);
+                if(this.isCurrentChat(chat)){
+                    this.$el.find('.msg-text').attr('contenteditable', true).html('');
                 }
             }
         };
@@ -680,10 +741,14 @@
             },
             /**
              * If chatter is offline
+             * @param chat {Chat}
              * @this AHChat
              */
-            notOnline: function(){
-                this.$el.removeClass('chat');
+            notOnline: function(chat){
+                if(this.isCurrentChat(chat)){
+                    this.$el.removeClass('chat');
+                    this.openChat(chat.id);
+                }
                 this.$el.find('.auth').addClass('notOnline');
             },
             /**
@@ -763,7 +828,7 @@
                 if(data.name) this.name = data.name;
                 if(data.chats){
                     for(var v in data.chats){
-                        this.addChat(v, data.chats[v]);
+                        if(data.chats.hasOwnProperty(v)) this.addChat(v, data.chats[v]);
                     }
                 }
                 if(data.token){
@@ -777,7 +842,7 @@
             message: function(data){
                 if(data.chatId){
                     var chat = this.chats[data.chatId];
-                    var render = this.currentChat && (this.currentChat.id == chat.id);
+                    var render = this.isCurrentChat(chat);
                     if(data.clientDate){
                         chat.accept(data, render);
                     }else{
@@ -798,7 +863,7 @@
                     if(chat.status){
                         this.evt('online', chat);
                     }else{
-                        this.err('notOnline');
+                        this.err('notOnline', chat);
                     }
                 }
             }
@@ -815,6 +880,8 @@
 
         this.reset();
     };
+
+    window.AHChat = AHChat;
 
     return AHChat;
 });

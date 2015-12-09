@@ -37,6 +37,12 @@
         margin: 0;
         font-size: 13px;
         color: #999999; }
+    .ah-chat .chats .empty-list {
+      display: none;
+      font-size: 18px;
+      font-weight: bold;
+      color: #AAB8D4;
+      padding: 0 20px; }
   .ah-chat .fixed-btn {
     background-color: #018af4;
     border-radius: 4px 4px 0 0;
@@ -185,12 +191,14 @@
       padding: 10px;
       display: none; }
       .ah-chat .chats .footer .textInp .msg-text, .ah-chat .window .footer .textInp .msg-text {
+        color: #868686;
         background-color: #f2f2f2;
         padding: 10px;
         margin-right: 18px;
         outline: none;
         min-height: 17px; }
         .ah-chat .chats .footer .textInp .msg-text[contenteditable], .ah-chat .window .footer .textInp .msg-text[contenteditable] {
+          color: #000000;
           background-color: #ffffff; }
       .ah-chat .chats .footer .send-btn, .ah-chat .window .footer .send-btn {
         outline: none;
@@ -230,6 +238,8 @@
   .ah-chat.seller.open.chat .chats {
     display: none; }
   .ah-chat.seller.open.chat .window {
+    display: block; }
+  .ah-chat.have-not-chat .empty-list {
     display: block; }
   .ah-chat i.icon {
     width: 32px;
