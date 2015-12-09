@@ -3,6 +3,8 @@
 Web chat for client - seller scheme. Seller might have many chats, client only one with seller.
 Chat work to `websocket`, for server recommended use https://packagist.org/packages/alexboo/websocket-handler.
 
+### Full request-response scheme - https://github.com/shoom3301/AHChat/blob/master/requests.json
+
 ## Client authorization
 For authorization you must have token and seller id, both parameters you must get from server.
 Seller id always required for clients.
