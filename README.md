@@ -146,6 +146,11 @@ For server realization you can see `dist/server/index.js`
    
    `chatter` - name of new chatter
    
+### status: change status of user
+  `chatId` - id of chat
+  
+  `status` - online = true, ofline = false
+   
 
 ## Server errors
 
