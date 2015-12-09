@@ -273,12 +273,8 @@
         this.initialize = function(){
             // #>1
             $.when(this.render(cfg.template).done($.proxy(function(){
-                var $body = $(document.body);
-                $body.find('.ah-chat').remove();
-                $body.append(this.el);
                 this.setToken(cfg.token || localStorage.getItem('chatToken'));
                 if(this.token) this.initSocket(cfg.url);
-                this.delegateEvents();
             },this)));
             return this;
         };
@@ -318,6 +314,12 @@
                     $chatTpl.remove();
 
                     this.$el.addClass(this.type);
+
+                    var $body = $(document.body);
+                    $body.find('.ah-chat').remove();
+                    $body.append(this.el);
+
+                    this.delegateEvents();
 
                     df.resolve();
                 }
@@ -770,7 +772,8 @@
                 this.ws.close(3003);
                 this.setToken('');
                 this.reset();
-                this.initialize();
+                this.type = 'user';
+                this.render(cfg.template);
             }
         };
 
