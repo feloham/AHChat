@@ -1,0 +1,158 @@
+{
+  "authorization": {
+    "request": {
+      "user-authorized": {
+        "command": "auth",
+        "data": {
+          "token": "kl-0pK230",
+          "sellerId": 12
+        }
+      },
+      "user-anon": {
+        "command": "auth",
+        "data": {
+          "name": "Im user",
+          "sellerId": 12
+        }
+      },
+      "seller": {
+        "command": "auth",
+        "data": {
+          "token": "kl-0pK230"
+        }
+      }
+    },
+    "response": {
+      "user-authorized": {
+        "command": "auth",
+        "data": {
+          "name": "User name",
+          "chats": [
+            {
+              "id": 2,
+              "chatter": "Seller name",
+              "messages": [
+                {
+                  "id": 1,
+                  "text": "Hi user",
+                  "date": 1447933383
+                },
+                {
+                  "id": 2,
+                  "text": "How are u?",
+                  "date": 1447936453
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "user-anon": {
+        "command": "auth",
+        "data": {
+          "name": "User name",
+          "chats": [
+            {"id": 2, "chatter": "Seller name", "messages": []}
+          ]
+        }
+      },
+      "seller": {
+        "command": "auth",
+        "data": {
+          "name": "Seller name",
+          "chats": [
+            {
+              "id": 1,
+              "chatter": "Seller name",
+              "messages": [
+                {
+                  "id": 1,
+                  "text": "Hi user",
+                  "date": 1447933383
+                },
+                {
+                  "id": 2,
+                  "text": "How are u?",
+                  "date": 1447936453
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "chatter": "Seller name",
+              "messages": [
+                {
+                  "id": 1,
+                  "text": "Hi user",
+                  "date": 1447933383
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "message": {
+    "request": {
+      "command": "message",
+      "data": {
+        "text": "Hi seller",
+        "clientDate": "2390845223",
+        "chatId": 2,
+        "my": true
+      }
+    },
+    "response": {
+      "myself": {
+        "command": "message",
+        "data": {
+          "id": 3,
+          "text": "Hi seller",
+          "date": "3498583242",
+          "clientDate": "2390845223",
+          "my": true,
+          "chatId": 2
+        }
+      },
+      "from_chatter": {
+        "command": "message",
+        "data": {
+          "id": 4,
+          "text": "Hi you",
+          "date": "3498583242",
+          "clientDate": "2390845223",
+          "chatId": 2
+        }
+      }
+    }
+  },
+  "status": {
+    "response": {
+      "offline": {
+        "command": "status",
+        "data": {
+          "chatId": 4,
+          "status": false
+        }
+      },
+      "online": {
+        "command": "status",
+        "data": {
+          "chatId": 4,
+          "status": true
+        }
+      }
+    }
+  },
+  "chat": {
+    "response": {
+      "command": "status",
+      "data": {
+        "id": 5,
+        "chatter": "New user",
+        "messages": []
+      }
+    }
+  }
+}
