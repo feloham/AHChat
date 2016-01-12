@@ -258,8 +258,8 @@
         cfg = $.extend({
             lastMsgLength: 35,
             template: 'dist/chat.tpl',
-            reconnectCount: 10,
-            reconnectTime: 3000,
+            reconnectCount: 4,
+            reconnectTime: 5000,
             ERRORS: null,
             TEXT: null
         }, cfg || {});
@@ -450,7 +450,11 @@
         this.addChat = function(id, data){
             this.$el.removeClass('have-not-chat');
             var chat = new Chat(id);
-            if(data && data.chatter) chat.chatter = data.chatter;
+            if(data){
+                if(data.chatter) chat.chatter = data.chatter;
+                if(data.item) chat.item = data.chatter;
+            }
+
             this.chats[chat.id] = chat;
             if(this.type == 'seller'){
                 var $list = this.$el.find('.chats .list');
@@ -531,6 +535,8 @@
                 this.$el.find('.sellerName').text(this.currentChat.chatter || 'Диалог');
             }
 
+            this.evt('chatOpen', this.currentChat);
+
             return this;
         };
 
@@ -569,8 +575,8 @@
          * @param args {Arguments} arguments
          * */
         this.triggerMethod = function(section, args){
-            var params = Array.prototype.slice.call(args);
-            return this[section][params.shift()].apply(this, params);
+            var params = Array.prototype.slice.call(args), func = this[section][params.shift()];
+            return func?func.apply(this, params):null;
         };
 
         /**
@@ -735,6 +741,8 @@
             }
         };
 
+        $.extend(this.event, cfg.event || {});
+
         /**
          * Trigger for event section
          * @see this.event
@@ -793,6 +801,8 @@
             }
         };
 
+        $.extend(this.errors, cfg.errors || {});
+
         /**
          * Trigger for errors section
          * @see this.event
@@ -832,6 +842,8 @@
                 return this.callSocket('finish', {chatId: chatId});
             }
         };
+
+        $.extend(this.request, cfg.request || {});
 
         /**
          * Trigger for request section
@@ -913,6 +925,8 @@
                 }
             }
         };
+
+        $.extend(this.response, cfg.response || {});
 
         /**
          * Trigger for response section

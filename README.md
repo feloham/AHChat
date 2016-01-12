@@ -138,8 +138,8 @@ For server realization you can see `dist/server/index.js`
    
    `clientDate` - returned as a confirmation of the request
    
-### status: change status of chatter
-   `status` - boolean, true = online, false - offline, its status of chatter
+### available: change status of chatter
+   `available` - boolean, true = online, false - offline, its status of chatter
    
    `chatId` - id of chat
    
@@ -148,10 +148,15 @@ For server realization you can see `dist/server/index.js`
    
    `chatter` - name of new chatter
    
-### status: change status of user
+### available: change status of user
   `chatId` - id of chat
   
-  `status` - online = true, ofline = false
+  `available` - online = true, ofline = false
+  
+### update: another seller accepted chat
+`chatId` - id of chat
+
+`status` - "RESPONDED" - another seller accepted chat
    
 
 ## Server errors
