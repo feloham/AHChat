@@ -468,7 +468,8 @@
                 });
                 $chat.find('a').text(chat.chatter);
                 $chat.click(function(e){
-                    if($(e.target).hasClass('remove') || chat.disabled) return;
+                    var targ = $(e.target);
+                    if(targ.hasClass('remove') || targ.parent().hasClass('remove') || chat.disabled) return;
                     $(this).removeClass('new');
                     self.openChat(chat.id);
                 });
