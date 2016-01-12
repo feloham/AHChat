@@ -8,6 +8,7 @@
             <div class="error"></div>
             <div class="auth">
                 <p class="notOnline">Продавец в данный момент не в сети, пожалуйста попробуйте позднее...</p>
+                <p class="emptyChats">У вас еще нет диалогов</p>
                 <p class="unavailable">Извините, чат в данный момент не доступен.<br>Попытка соединения...</p>
                 <p>Пожалуйста<br> введите Ваше имя</p>
                 <div class="wrap">
@@ -27,6 +28,7 @@
         </div>
     </div>
     <div class="chats">
+        <div class="error"></div>
         <div class="heading">
             <a>Список разговоров</a>
             <button class="close-window"></button>
@@ -52,8 +54,12 @@
     <!-- Template of chat item -->
     <div id="chatTpl">
         <div class="chat">
-            <a></a><span class="status"></span>
-            <p></p>
+            <div class="box">
+                <a></a>
+                <span class="status"></span>
+                <p></p>
+            </div>
+            <button class="remove"><span></span><span></span></button>
         </div>
     </div>
 </div>

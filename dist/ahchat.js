@@ -235,6 +235,10 @@
         'DATE_IS_REQUIRED': {
             method: 'defaultError',
             text: 'Date is required'
+        },
+        USER_HAS_NO_PERMISSION: {
+            method: 'defaultError',
+            text: 'Вы не можете выполнить это действие.'
         }
     };
 
@@ -363,7 +367,7 @@
                 .bindEvent('.msg-text', 'keypress', 'sendByEnter')
                 .bindEvent('.messages', 'mouseover', 'messagesHover')
                 .bindEvent('.messages', 'mouseleave', 'messagesOut')
-                .bindEvent('.panel > .error', 'click', 'closeError');
+                .bindEvent('.error', 'click', 'closeError');
         };
 
         this.reset = function(){
@@ -444,6 +448,7 @@
          * @param data {object} data
          * */
         this.addChat = function(id, data){
+            this.$el.removeClass('have-not-chat');
             var chat = new Chat(id);
             if(data && data.chatter) chat.chatter = data.chatter;
             this.chats[chat.id] = chat;
@@ -458,13 +463,24 @@
                     }
                 });
                 $chat.find('a').text(chat.chatter);
-                $chat.click(function(){
+                $chat.click(function(e){
+                    if($(e.target).hasClass('remove') || chat.disabled) return;
                     $(this).removeClass('new');
                     self.openChat(chat.id);
                 });
+                $chat.find('button.remove').click(function(e){
+                    self.chatDestroy(chat.id);
+                });
                 $list.append($chat);
+                chat.$el = $chat;
             }
             if(data && data.messages) chat.add(data.messages);
+        };
+        /**
+         * Destroy chat
+         */
+        this.chatDestroy = function(chatId){
+            this.req('finish', chatId);
         };
         /**
          * Set chat element in list status 'new'
@@ -499,13 +515,12 @@
          * Enable chat functionality
          * */
         this.openChat = function(chatId){
-            this.$el.addClass(this.currentChat?'chat':'have-not-chat');
-
             if(chatId){
                 this.currentChat = this.chats[chatId];
             }else{
                 this.currentChat = this.firstChat();
             }
+            this.$el.addClass(this.currentChat?'chat':'have-not-chat');
             if(this.currentChat){
                 this.currentChat.render();
                 if(this.currentChat.status === false){
@@ -513,7 +528,7 @@
                 }else{
                     this.$el.find('.msg-text').attr('contenteditable', true).html('');
                 }
-                this.$el.find('.sellerName').text(this.currentChat.chatter);
+                this.$el.find('.sellerName').text(this.currentChat.chatter || 'Диалог');
             }
 
             return this;
@@ -641,13 +656,13 @@
              * Close error text
              */
             closeError: function(){
-                this.$el.find('.panel > .error').fadeOut(200);
+                this.$el.find('.error').fadeOut(200);
             },
             /* @this AHChat */
             socketOpen: function(){
                 // #>2.2.1
                 this.socketOpened = true;
-                this.req('auth', this.token, this.name, cfg.sellerId, cfg.id);
+                this.req('auth', this.token, this.name, cfg.profile, cfg.id);
             },
             /* @this AHChat */
             socketMessage: function(res){
@@ -739,7 +754,8 @@
              * @param text {string} error text
              */
             defaultError: function(text){
-                this.$el.find('.panel > .error').text(text).fadeIn(200);
+                var selector = this.$el.hasClass('seller')?'.chats > .error':'.panel > .error';
+                this.$el.find(selector).text(text).fadeIn(200);
             },
             /**
              * If chatter is offline
@@ -791,7 +807,7 @@
          * */
         this.request = {
             /* @this AHChat */
-            auth: function(token, name, sellerId, myId){
+            auth: function(token, name, profile, myId){
                 var data = {};
                 if(token){
                     data.token = token;
@@ -799,8 +815,8 @@
                 if(name){
                     data.name = name;
                 }
-                if(sellerId){
-                    data.sellerId = sellerId;
+                if(profile){
+                    _.extend(data, profile);
                 }
                 if(myId){
                     data.id = myId;
@@ -810,6 +826,10 @@
             /* @this AHChat */
             message: function(msg){
                 return this.callSocket('message', msg);
+            },
+            /* @this AHChat */
+            finish: function(chatId){
+                return this.callSocket('finish', {chatId: chatId});
             }
         };
 
@@ -830,8 +850,12 @@
             auth: function(data){
                 if(data.name) this.name = data.name;
                 if(data.chats){
-                    for(var v in data.chats){
-                        if(data.chats.hasOwnProperty(v)) this.addChat(v, data.chats[v]);
+                    if(data.chats.length){
+                        for(var v in data.chats){
+                            if(data.chats.hasOwnProperty(v)) this.addChat(data.chats[v].id, data.chats[v]);
+                        }
+                    }else{
+                        this.$el.find('.auth').addClass('emptyChats');
                     }
                 }
                 if(data.token){
@@ -858,15 +882,33 @@
                 this.addChat(data.id, data);
             },
             /* @this AHChat */
-            status: function(data){
+            available: function(data){
                 if(data.chatId){
                     var chat = this.chats[data.chatId];
-                    chat.status = data.status == true;
+                    chat.status = data.available == true;
 
                     if(chat.status){
                         this.evt('online', chat);
                     }else{
                         this.err('notOnline', chat);
+                    }
+                }
+            },
+            /* @this AHChat */
+            finish: function(data){
+                if(data && data.chatId){
+                    var chat = this.chats[data.chatId];
+                    if(chat){
+                        this.removeChat(chat);
+                    }
+                }
+            },
+            /* @this AHChat */
+            update: function(data){
+                if(data && data.chatId){
+                    var chat = this.chats[data.chatId];
+                    if(chat && data.status == 'RESPONDED'){
+                        this.removeChat(chat);
                     }
                 }
             }
@@ -879,6 +921,15 @@
          * */
         this.res = function(){
             return this.triggerMethod('response', arguments);
+        };
+
+        /**
+         * Remove chat
+         * @param chat {Chat}
+         */
+        this.removeChat = function(chat){
+            chat.$el.remove();
+            delete this.chats[chat.id];
         };
 
         this.reset();

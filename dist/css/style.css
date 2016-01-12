@@ -20,29 +20,68 @@
       height: 32px;
       background-position: 0 -32px; }
   .ah-chat .chats {
-    display: none; }
-    .ah-chat .chats .list .chat {
-      padding: 12px;
-      margin: 8px;
-      cursor: pointer; }
-      .ah-chat .chats .list .chat:hover {
-        background-color: #eaeaea; }
-      .ah-chat .chats .list .chat.new p {
-        color: #fe9500; }
-      .ah-chat .chats .list .chat a {
-        font-size: 16px;
-        font-weight: bold;
-        color: #010101; }
-      .ah-chat .chats .list .chat p {
-        margin: 0;
-        font-size: 13px;
-        color: #999999; }
+    display: none;
+    background: #fff; }
+    .ah-chat .chats .list {
+      background-color: #ffffff;
+      margin: -10px 0;
+      padding: 1px 0 10px 0;
+      max-height: 400px;
+      overflow: auto; }
+      .ah-chat .chats .list .chat {
+        padding: 12px;
+        margin: 8px;
+        cursor: pointer; }
+        .ah-chat .chats .list .chat:hover {
+          background-color: #eaeaea; }
+          .ah-chat .chats .list .chat:hover .remove {
+            background-color: #ffffff; }
+        .ah-chat .chats .list .chat.new p {
+          color: #fe9500; }
+        .ah-chat .chats .list .chat a {
+          font-size: 16px;
+          font-weight: bold;
+          color: #010101; }
+        .ah-chat .chats .list .chat p {
+          margin: 0;
+          font-size: 13px;
+          color: #999999; }
+        .ah-chat .chats .list .chat .box {
+          float: left; }
+        .ah-chat .chats .list .chat .remove {
+          width: 24px;
+          height: 24px;
+          float: right;
+          background: #DEDEDE;
+          border: 0;
+          position: relative; }
+          .ah-chat .chats .list .chat .remove:hover {
+            background-color: #989898; }
+            .ah-chat .chats .list .chat .remove:hover span {
+              background-color: #ffffff; }
+          .ah-chat .chats .list .chat .remove span {
+            display: block;
+            background-color: #000000;
+            width: 55%;
+            height: 2px;
+            position: absolute; }
+            .ah-chat .chats .list .chat .remove span:first-child {
+              transform: rotate(45deg) translate(-1px, 0px); }
+            .ah-chat .chats .list .chat .remove span:last-child {
+              transform: rotate(-45deg) translate(0px, -1px); }
+        .ah-chat .chats .list .chat:after {
+          display: block;
+          content: "";
+          clear: both;
+          width: 100%; }
     .ah-chat .chats .empty-list {
       display: none;
       font-size: 18px;
       font-weight: bold;
       color: #AAB8D4;
       padding: 0 20px; }
+      .ah-chat .chats .empty-list p {
+        padding-bottom: 20px; }
   .ah-chat .fixed-btn {
     background-color: #018af4;
     border-radius: 4px 4px 0 0;
@@ -82,6 +121,7 @@
       color: #ffffff;
       padding: 12px 10px 12px 20px;
       line-height: 26px;
+      height: 35px;
       font-size: 18px;
       font-weight: bold; }
       .ah-chat .chats .heading:after, .ah-chat .window .heading:after {
@@ -148,12 +188,19 @@
           display: none; }
         .ah-chat .chats .panel .auth.notOnline .notOnline, .ah-chat .window .panel .auth.notOnline .notOnline {
           display: block; }
+        .ah-chat .chats .panel .auth .emptyChats, .ah-chat .window .panel .auth .emptyChats {
+          display: none; }
+        .ah-chat .chats .panel .auth.emptyChats .wrap, .ah-chat .chats .panel .auth.emptyChats .auth-btn, .ah-chat .chats .panel .auth.emptyChats p, .ah-chat .window .panel .auth.emptyChats .wrap, .ah-chat .window .panel .auth.emptyChats .auth-btn, .ah-chat .window .panel .auth.emptyChats p {
+          display: none; }
+        .ah-chat .chats .panel .auth.emptyChats .emptyChats, .ah-chat .window .panel .auth.emptyChats .emptyChats {
+          display: block; }
       .ah-chat .chats .panel .chat, .ah-chat .window .panel .chat {
         display: none;
         height: 380px;
         padding-right: 5px; }
         .ah-chat .chats .panel .chat .messages, .ah-chat .window .panel .chat .messages {
           overflow-y: scroll;
+          height: 100%;
           padding-right: 8px; }
           .ah-chat .chats .panel .chat .messages .message, .ah-chat .window .panel .chat .messages .message {
             margin: 5px 5px 15px 5px;
@@ -172,19 +219,6 @@
             .ah-chat .chats .panel .chat .messages .message.my, .ah-chat .window .panel .chat .messages .message.my {
               text-align: right;
               background-color: #fff; }
-      .ah-chat .chats .panel .error, .ah-chat .window .panel .error {
-        display: none;
-        padding: 10px;
-        background-color: rgba(255, 255, 255, 0.9);
-        color: #c8101a;
-        font-size: 14px;
-        font-weight: bold;
-        text-align: left;
-        position: absolute;
-        z-index: 10;
-        left: 0;
-        bottom: 0;
-        width: 100%; }
     .ah-chat .chats .footer, .ah-chat .window .footer {
       position: relative;
       background-color: #e5e5e5;
@@ -215,6 +249,18 @@
         border-radius: 50%; }
         .ah-chat .chats .footer .send-btn .icon, .ah-chat .window .footer .send-btn .icon {
           background-position: -31px 1px; }
+    .ah-chat .chats .error, .ah-chat .window .error {
+      display: none;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #c8101a;
+      font-size: 14px;
+      text-align: left;
+      position: absolute;
+      z-index: 10;
+      left: 0;
+      bottom: 0;
+      width: 100%; }
   .ah-chat.open .window {
     display: block; }
   .ah-chat.open .fixed-btn {

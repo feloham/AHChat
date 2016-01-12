@@ -29,13 +29,22 @@
   }
   .chats{
     display: none;
+    background: #fff;
     .list{
+      background-color: #ffffff;
+      margin: -10px 0;
+      padding: 1px 0 10px 0;
+      max-height: 400px;
+      overflow: auto;
       .chat{
         padding: 12px;
         margin: 8px;
         cursor: pointer;
         &:hover{
           background-color: #eaeaea;
+          .remove{
+            background-color: #ffffff;
+          }
         }
         &.new{
           p{
@@ -52,6 +61,42 @@
           font-size: 13px;
           color: #999999;
         }
+        .box{
+          float: left;
+        }
+        .remove{
+          width: 24px;
+          height: 24px;
+          float: right;
+          background: #DEDEDE;
+          border: 0;
+          position: relative;
+          &:hover{
+            background-color: #989898;
+            span{
+              background-color: #ffffff;
+            }
+          }
+          span{
+            display: block;
+            background-color: #000000;
+            width: 55%;
+            height: 2px;
+            position: absolute;
+            &:first-child {
+              transform: rotate(45deg) translate(-1px, 0px);
+            }
+            &:last-child {
+              transform: rotate(-45deg) translate(0px, -1px);
+            }
+          }
+        }
+        &:after{
+          display: block;
+          content: "";
+          clear: both;
+          width: 100%;
+        }
       }
     }
     .empty-list{
@@ -60,6 +105,9 @@
       font-weight: bold;
       color: #AAB8D4;
       padding: 0 20px;
+      p{
+        padding-bottom: 20px;
+      }
     }
   }
   .fixed-btn{
@@ -110,6 +158,7 @@
       color: #ffffff;
       padding: 12px 10px 12px 20px;
       line-height: 26px;
+      height: 35px;
       font-size: 18px;
       font-weight: bold;
       &:after{
@@ -195,6 +244,17 @@
             display: block;
           }
         }
+        .emptyChats{
+          display: none;
+        }
+        &.emptyChats{
+          .wrap, .auth-btn, p{
+            display: none;
+          }
+          .emptyChats{
+            display: block;
+          }
+        }
       }
       .chat{
         display: none;
@@ -202,6 +262,7 @@
         padding-right: 5px;
         .messages{
           overflow-y: scroll;
+          height: 100%;
           padding-right: 8px;
           .message{
             margin: 5px 5px 15px 5px;
@@ -224,20 +285,6 @@
             }
           }
         }
-      }
-      .error{
-        display: none;
-        padding: 10px;
-        background-color: rgba(255,255,255,0.9);
-        color: #c8101a;
-        font-size: 14px;
-        font-weight: bold;
-        text-align: left;
-        position: absolute;
-        z-index: 10;
-        left: 0;
-        bottom: 0;
-        width: 100%;
       }
     }
     .footer{
@@ -276,6 +323,19 @@
           background-position: -31px 1px;
         }
       }
+    }
+    .error{
+      display: none;
+      padding: 10px;
+      background-color: rgba(255,255,255,0.9);
+      color: #c8101a;
+      font-size: 14px;
+      text-align: left;
+      position: absolute;
+      z-index: 10;
+      left: 0;
+      bottom: 0;
+      width: 100%;
     }
   }
   &.open{
