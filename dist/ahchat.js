@@ -276,7 +276,13 @@
          * */
         this.initialize = function(){
             // #>1
-            $.when(this.render(cfg.template).done($.proxy(function(){
+            var operation;
+            if(cfg.template){
+                operation = this.render(cfg.template);
+            }else if(cfg.templateHTML){
+                operation = this.render(null, cfg.templateHTML);
+            }
+            $.when(operation.done($.proxy(function(){
                 this.setToken(cfg.token || localStorage.getItem('chatToken'));
                 if(this.token) this.initSocket(cfg.url);
             },this)));
@@ -298,11 +304,12 @@
         /**
          * Rendering chat. Request template and add him to DOM
          * @param template {string} url to template
+         * @param templateHTML {string} template html
          * @return {jQuery.Deferred}
          * */
-        this.render = function(template){
+        this.render = function(template, templateHTML){
             var df = $.Deferred();
-            this.get(template, $.proxy(function(tpl){
+            var cb = $.proxy(function(tpl){
                 if(tpl){
                     this.$el = $(tpl);
                     this.el = this.$el.get(0);
@@ -327,7 +334,12 @@
 
                     df.resolve();
                 }
-            } ,this));
+            } ,this);
+            if(template){
+                this.get(template, cb);
+            }else if(templateHTML){
+                cb(templateHTML);
+            }
             return df.promise();
         };
         /**
@@ -798,7 +810,11 @@
                 this.setToken('');
                 this.reset();
                 this.type = 'user';
-                this.render(cfg.template);
+                if(cfg.template){
+                    this.render(cfg.template);
+                }else if(cfg.templateHTML){
+                    this.render(null, cfg.templateHTML);
+                }
             }
         };
 
