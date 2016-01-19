@@ -691,6 +691,7 @@
             },
             /* @this AHChat */
             socketMessage: function(res){
+                console.log('CHAT_DATA: ', res);
                 if(res && res.data){
                     var data = JSON.parse(res.data);
                     if(data.error){
