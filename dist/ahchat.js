@@ -277,10 +277,10 @@
         this.initialize = function(){
             // #>1
             var operation;
-            if(cfg.template){
-                operation = this.render(cfg.template);
-            }else if(cfg.templateHTML){
+            if(cfg.templateHTML){
                 operation = this.render(null, cfg.templateHTML);
+            }else if(cfg.template){
+                operation = this.render(cfg.template);
             }
             $.when(operation.done($.proxy(function(){
                 this.setToken(cfg.token || localStorage.getItem('chatToken'));
@@ -464,7 +464,7 @@
             var chat = new Chat(id);
             if(data){
                 if(data.chatter) chat.chatter = data.chatter;
-                if(data.item) chat.item = data.chatter;
+                if(data.item) chat.item = data.item;
             }
 
             this.chats[chat.id] = chat;
@@ -606,6 +606,8 @@
                     }
                 }
                 this.$el.find('.chats-btn').removeClass('new');
+                var $list = Message.prototype.$list;
+                if($list) $list.parent().nanoScroller();
             },
             /* @this AHChat */
             closeWindow: function(){
@@ -810,10 +812,10 @@
                 this.setToken('');
                 this.reset();
                 this.type = 'user';
-                if(cfg.template){
-                    this.render(cfg.template);
-                }else if(cfg.templateHTML){
+                if(cfg.templateHTML){
                     this.render(null, cfg.templateHTML);
+                }else if(cfg.template){
+                    this.render(cfg.template);
                 }
             }
         };
