@@ -460,8 +460,8 @@
          * @param data {object} data
          * */
         this.addChat = function(id, data){
-            if(this.chats[id]) return;
             this.$el.removeClass('have-not-chat');
+            if(this.chats[id]) return;
             var chat = new Chat(id);
             if(data){
                 if(data.chatter) chat.chatter = data.chatter;
