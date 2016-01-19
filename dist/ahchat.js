@@ -463,6 +463,9 @@
             this.$el.removeClass('have-not-chat');
             if(this.chats[id]) return;
             var chat = new Chat(id);
+            var count = 0;
+            for(var v in this.chats) count++;
+            if(!count) this.currentChat = chat;
             if(data){
                 if(data.chatter) chat.chatter = data.chatter;
                 if(data.item) chat.item = data.item;
