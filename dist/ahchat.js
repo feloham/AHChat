@@ -460,6 +460,7 @@
          * @param data {object} data
          * */
         this.addChat = function(id, data){
+            if(this.chats[id]) return;
             this.$el.removeClass('have-not-chat');
             var chat = new Chat(id);
             if(data){
@@ -598,7 +599,7 @@
         this.event = {
             /* @this AHChat */
             openWindow: function(){
-                if(this.currentChat) this.$el.removeClass('have-not-chat');
+                this.$el[this.currentChat?'removeClass':'addClass']('have-not-chat');
                 this.$el.addClass('open');
                 if(this.type == 'user'){
                     if(this.token && this.socketOpened){
@@ -963,6 +964,12 @@
         this.removeChat = function(chat){
             chat.$el.remove();
             delete this.chats[chat.id];
+            var count = 0;
+            for(var v in this.chats) count++;
+            if(!count){
+                delete this.currentChat;
+                this.$el.addClass('have-not-chat');
+            }
         };
 
         this.reset();
