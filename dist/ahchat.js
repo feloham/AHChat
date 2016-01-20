@@ -691,7 +691,6 @@
             },
             /* @this AHChat */
             socketMessage: function(res){
-                console.log('CHAT_RESPONSE: ', res);
                 if(res && res.data){
                     var data = JSON.parse(res.data);
                     if(data.error){
@@ -875,7 +874,6 @@
          * @see this.triggerMethod
          * */
         this.req = function(){
-            console.log('CHAT_REQUEST: ', arguments);
             return this.triggerMethod('request', arguments);
         };
 
