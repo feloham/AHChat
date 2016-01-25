@@ -261,7 +261,8 @@
             reconnectCount: 4,
             reconnectTime: 5000,
             ERRORS: null,
-            TEXT: null
+            TEXT: null,
+            errorTime: 7000
         }, cfg || {});
 
         if(cfg.ERRORS) ERRORS = cfg.ERRORS;
@@ -782,7 +783,10 @@
              */
             defaultError: function(text){
                 var selector = this.$el.hasClass('seller')?'.chats > .error':'.panel > .error';
-                this.$el.find(selector).text(text).fadeIn(200);
+                var $el = this.$el.find(selector).text(text).fadeIn(200);
+                setTimeout(function(){
+                    $el.fadeOut(200);
+                }, cfg.errorTime);
             },
             /**
              * If chatter is offline
