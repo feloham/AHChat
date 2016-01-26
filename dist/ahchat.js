@@ -462,7 +462,8 @@
          * */
         this.addChat = function(id, data){
             this.$el.removeClass('have-not-chat');
-            if(this.chats[id]) return;
+            var reRenderCurrentChat = this.chats[id] && this.isCurrentChat(this.chats[id]);
+
             var chat = new Chat(id);
             var count = 0;
             for(var v in this.chats) count++;
@@ -473,6 +474,7 @@
             }
 
             this.chats[chat.id] = chat;
+
             if(this.type == 'seller'){
                 var $list = this.$el.find('.chats .list');
                 var $chat = $(this.chatTpl);
@@ -490,13 +492,17 @@
                     $(this).removeClass('new');
                     self.openChat(chat.id);
                 });
-                $chat.find('button.remove').click(function(e){
+                $chat.find('button.remove').click(function(){
                     self.chatDestroy(chat.id);
                 });
                 $list.append($chat);
                 chat.$el = $chat;
             }
             if(data && data.messages) chat.add(data.messages);
+
+            if(reRenderCurrentChat){
+                if(this.$el.hasClass('open')) this.openChat(chat.id);
+            }
         };
         /**
          * Destroy chat
@@ -551,9 +557,9 @@
                     this.$el.find('.msg-text').attr('contenteditable', true).html('');
                 }
                 this.$el.find('.sellerName').text(this.currentChat.chatter || 'Диалог');
-            }
 
-            this.evt('chatOpen', this.currentChat);
+                this.evt('chatOpen', this.currentChat);
+            }
 
             return this;
         };
@@ -753,7 +759,6 @@
              * @param chat {Chat}
              */
             online: function(chat){
-                this.$el.addClass('chat');
                 this.$el.find('.auth').removeClass('notOnline');
                 if(this.isCurrentChat(chat)){
                     this.$el.find('.msg-text').attr('contenteditable', true).html('');
@@ -911,7 +916,7 @@
                     var render = this.isCurrentChat(chat);
                     if(data.clientDate){
                         chat.accept(data, render);
-                    }else{
+                    }else if(chat){
                         chat.push(data, render);
                     }
                 }
@@ -924,12 +929,14 @@
             available: function(data){
                 if(data.chatId){
                     var chat = this.chats[data.chatId];
-                    chat.status = data.available == true;
+                    if(chat){
+                        chat.status = data.available == true;
 
-                    if(chat.status){
-                        this.evt('online', chat);
-                    }else{
-                        this.err('notOnline', chat);
+                        if(chat.status){
+                            this.evt('online', chat);
+                        }else{
+                            this.err('notOnline', chat);
+                        }
                     }
                 }
             },
