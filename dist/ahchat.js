@@ -247,7 +247,9 @@
      * @type {object}
      */
     var TEXT = {
-        user_not_online: 'Пользователь не в сети'
+        user_not_online: 'Пользователь не в сети',
+        chatter_not_connected: 'Собеседник не подключен',
+        dialog: 'Диалог'
     };
 
     /**
@@ -325,8 +327,6 @@
                     this.chatTpl = $chatTpl.html();
                     $chatTpl.remove();
 
-                    this.$el.addClass(this.type);
-
                     var $body = $(document.body);
                     $body.find('.ah-chat').remove();
                     $body.append(this.el);
@@ -397,7 +397,7 @@
             //chats
             this.chats = {};
             //type of chat
-            this.type = cfg.id?'seller':'user';
+            this.type = 'seller';
             //Socket is opened
             this.socketOpened = false;
             //Timer to reconnect
@@ -465,39 +465,34 @@
             var reRenderCurrentChat = this.chats[id] && this.isCurrentChat(this.chats[id]);
 
             var chat = new Chat(id);
-            var count = 0;
-            for(var v in this.chats) count++;
-            if(!count) this.currentChat = chat;
-            if(data){
-                if(data.chatter) chat.chatter = data.chatter;
-                if(data.item) chat.item = data.item;
-            }
+            if(!this.chatsCount()) this.currentChat = chat;
+            if(data && data.chatter) chat.chatter = data.chatter;
+            chat.data = data;
 
             this.chats[chat.id] = chat;
 
-            if(this.type == 'seller'){
-                var $list = this.$el.find('.chats .list');
-                var $chat = $(this.chatTpl);
-                var self = this;
-                chat.onAddMessage(function(msg){
-                    $chat.find('p').text(stringMax(msg.attrs.text, cfg.lastMsgLength));
-                    if(!self.$el.hasClass('open')){
-                        self.newChatMessage(chat, $chat);
-                    }
-                });
-                $chat.find('a').text(chat.chatter);
-                $chat.click(function(e){
-                    var targ = $(e.target);
-                    if(targ.hasClass('remove') || targ.parent().hasClass('remove') || chat.disabled) return;
-                    $(this).removeClass('new');
-                    self.openChat(chat.id);
-                });
-                $chat.find('button.remove').click(function(){
-                    self.chatDestroy(chat.id);
-                });
-                $list.append($chat);
-                chat.$el = $chat;
-            }
+            var $list = this.$el.find('.chats .list');
+            var $chat = $(this.chatTpl);
+            var self = this;
+            chat.onAddMessage(function(msg){
+                $chat.find('p').text(stringMax(msg.attrs.text, cfg.lastMsgLength));
+                if(!self.$el.hasClass('open')){
+                    self.newChatMessage(chat, $chat);
+                }
+            });
+            $chat.find('a').text(chat.chatter || TEXT['chatter_not_connected']);
+            $chat.click(function(e){
+                var targ = $(e.target);
+                if(targ.hasClass('remove') || targ.parent().hasClass('remove') || chat.disabled) return;
+                $(this).removeClass('new');
+                self.openChat(chat.id);
+            });
+            $chat.find('button.remove').click(function(){
+                self.chatDestroy(chat.id);
+            });
+            $list.append($chat);
+            chat.$el = $chat;
+
             if(data && data.messages) chat.add(data.messages);
 
             if(reRenderCurrentChat){
@@ -556,12 +551,22 @@
                 }else{
                     this.$el.find('.msg-text').attr('contenteditable', true).html('');
                 }
-                this.$el.find('.sellerName').text(this.currentChat.chatter || 'Диалог');
+                this.$el.find('.sellerName').text(this.currentChat.chatter || TEXT['dialog']);
 
                 this.evt('chatOpen', this.currentChat);
             }
 
             return this;
+        };
+
+        /**
+         * Count of chats
+         * @returns {number}
+         */
+        this.chatsCount = function(){
+            var count = 0;
+            for(var v in this.chats) count++;
+            return count;
         };
 
         /**
@@ -609,20 +614,19 @@
         this.event = {
             /* @this AHChat */
             openWindow: function(){
-                this.$el[this.currentChat?'removeClass':'addClass']('have-not-chat');
                 this.$el.addClass('open');
-                if(this.type == 'user'){
-                    if(this.token && this.socketOpened){
-                        this.openChat();
-                    }
+                if(this.chatsCount() == 1){
+                    this.openChat();
+                }else{
+                    this.$el[this.currentChat?'removeClass':'addClass']('have-not-chat');
+                    this.$el.find('.chats-btn').removeClass('new');
+                    var $list = Message.prototype.$list;
+                    if($list) $list.parent().nanoScroller();
                 }
-                this.$el.find('.chats-btn').removeClass('new');
-                var $list = Message.prototype.$list;
-                if($list) $list.parent().nanoScroller();
             },
             /* @this AHChat */
             closeWindow: function(){
-                if(this.type != 'seller' || !this.$el.hasClass('chat')){
+                if(this.chatsCount() < 2 || !this.$el.hasClass('chat')){
                     this.$el.removeClass('open');
                 }
                 this.$el.removeClass('chat');
@@ -824,7 +828,6 @@
                 this.ws.close(3003);
                 this.setToken('');
                 this.reset();
-                this.type = 'user';
                 if(cfg.templateHTML){
                     this.render(null, cfg.templateHTML);
                 }else if(cfg.template){
@@ -872,6 +875,10 @@
             /* @this AHChat */
             finish: function(chatId){
                 return this.callSocket('finish', {chatId: chatId});
+            },
+            /* @this AHChat */
+            'create-chat': function(profile){
+                return this.callSocket('create-chat', profile);
             }
         };
 
@@ -905,6 +912,7 @@
                 if(data.token){
                     this.setToken(data.token);
                 }
+                if(this.token) this.$el.addClass(this.type);
                 this.openChat();
 
                 this.evt('serverAvailable');
@@ -913,11 +921,15 @@
             message: function(data){
                 if(data.chatId){
                     var chat = this.chats[data.chatId];
-                    var render = this.isCurrentChat(chat);
-                    if(data.clientDate){
-                        chat.accept(data, render);
-                    }else if(chat){
-                        chat.push(data, render);
+                    if(!chat){
+                        this.req('create-chat', {id: data.chatId});
+                    }else{
+                        var render = this.isCurrentChat(chat);
+                        if(data.clientDate){
+                            chat.accept(data, render);
+                        }else if(chat){
+                            chat.push(data, render);
+                        }
                     }
                 }
             },
@@ -957,6 +969,11 @@
                         this.removeChat(chat);
                     }
                 }
+            },
+            /* @this AHChat */
+            'create-chat': function(data){
+                this.addChat(data.id, data);
+                this.openChat(data.id);
             }
         };
 
@@ -978,9 +995,7 @@
         this.removeChat = function(chat){
             chat.$el.remove();
             delete this.chats[chat.id];
-            var count = 0;
-            for(var v in this.chats) count++;
-            if(!count){
+            if(!this.chatsCount()){
                 delete this.currentChat;
                 this.$el.addClass('have-not-chat');
             }
