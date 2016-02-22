@@ -548,7 +548,6 @@
             }else{
                 this.currentChat = this.firstChat();
             }
-            this.$el.addClass('open');
             this.$el.addClass(this.currentChat?'chat':'have-not-chat');
 
             if(this.currentChat){
@@ -562,6 +561,7 @@
 
                 if(this.currentChat.$el) this.currentChat.$el.removeClass('new');
                 if(chatId) this.$el.find('.chats-btn').removeClass('new');
+                this.evt('chatOpen', this.currentChat);
             }
 
             return this;
