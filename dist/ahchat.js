@@ -239,6 +239,10 @@
         USER_HAS_NO_PERMISSION: {
             method: 'defaultError',
             text: 'Вы не можете выполнить это действие.'
+        },
+        CHAT_RESPONDED: {
+            method: 'defaultError',
+            text: 'На этот чат уже ответил другой продавец.'
         }
     };
 
@@ -264,7 +268,7 @@
             reconnectTime: 5000,
             ERRORS: null,
             TEXT: null,
-            errorTime: 7000
+            errorTime: 5000
         }, cfg || {});
 
         if(cfg.ERRORS) ERRORS = cfg.ERRORS;
@@ -464,6 +468,8 @@
             this.$el.removeClass('have-not-chat');
             var reRenderCurrentChat = this.chats[id] && this.isCurrentChat(this.chats[id]);
 
+            this.chats[id] && this.chats[id].$el.remove();
+
             var chat = new Chat(id);
             if(!this.chatsCount()) this.currentChat = chat;
             if(data && data.chatter) chat.chatter = data.chatter;
@@ -473,6 +479,7 @@
 
             var $list = this.$el.find('.chats .list');
             var $chat = $(this.chatTpl);
+            chat.$el = $chat;
             var self = this;
             chat.onAddMessage(function(msg){
                 $chat.find('p').text(stringMax(msg.attrs.text, cfg.lastMsgLength));
@@ -484,14 +491,12 @@
             $chat.click(function(e){
                 var targ = $(e.target);
                 if(targ.hasClass('remove') || targ.parent().hasClass('remove') || chat.disabled) return;
-                $(this).removeClass('new');
                 self.openChat(chat.id);
             });
             $chat.find('button.remove').click(function(){
                 self.chatDestroy(chat.id);
             });
             $list.append($chat);
-            chat.$el = $chat;
 
             if(data && data.messages) chat.add(data.messages);
 
@@ -544,6 +549,7 @@
                 this.currentChat = this.firstChat();
             }
             this.$el.addClass(this.currentChat?'chat':'have-not-chat');
+
             if(this.currentChat){
                 this.currentChat.render();
                 if(this.currentChat.status === false){
@@ -553,7 +559,8 @@
                 }
                 this.$el.find('.sellerName').text(this.currentChat.chatter || TEXT['dialog']);
 
-                this.evt('chatOpen', this.currentChat);
+                if(this.currentChat.$el) this.currentChat.$el.removeClass('new');
+                if(chatId) this.$el.find('.chats-btn').removeClass('new');
             }
 
             return this;
@@ -622,7 +629,7 @@
             },
             /* @this AHChat */
             closeWindow: function(){
-                if(this.chatsCount() < 2 || !this.$el.hasClass('chat')){
+                if(!this.$el.hasClass('chat')){
                     this.$el.removeClass('open');
                 }
                 this.$el.removeClass('chat');
@@ -963,6 +970,10 @@
                     var chat = this.chats[data.chatId];
                     if(chat && data.status == 'RESPONDED'){
                         this.removeChat(chat);
+                        if(chat == this.currentChat){
+                            this.$el.removeClass('chat');
+                            this.err('defaultError', ERRORS['CHAT_RESPONDED'].text);
+                        }
                     }
                 }
             },
