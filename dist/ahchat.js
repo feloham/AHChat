@@ -548,6 +548,7 @@
             }else{
                 this.currentChat = this.firstChat();
             }
+            this.$el.addClass('open');
             this.$el.addClass(this.currentChat?'chat':'have-not-chat');
 
             if(this.currentChat){
