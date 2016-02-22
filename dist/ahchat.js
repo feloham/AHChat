@@ -615,14 +615,10 @@
             /* @this AHChat */
             openWindow: function(){
                 this.$el.addClass('open');
-                if(this.chatsCount() == 1){
-                    this.openChat();
-                }else{
-                    this.$el[this.currentChat?'removeClass':'addClass']('have-not-chat');
-                    this.$el.find('.chats-btn').removeClass('new');
-                    var $list = Message.prototype.$list;
-                    if($list) $list.parent().nanoScroller();
-                }
+                this.$el[(this.currentChat && this.chatsCount()>0)?'removeClass':'addClass']('have-not-chat');
+                this.$el.find('.chats-btn').removeClass('new');
+                var $list = Message.prototype.$list;
+                if($list) $list.parent().nanoScroller();
             },
             /* @this AHChat */
             closeWindow: function(){
