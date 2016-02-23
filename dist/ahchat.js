@@ -809,7 +809,7 @@
             notOnline: function(chat){
                 if(this.isCurrentChat(chat)){
                     this.$el.removeClass('chat');
-                    this.openChat(chat.id);
+                    this.removeChat(chat);
                 }
                 this.$el.find('.auth').addClass('notOnline');
             },
