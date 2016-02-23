@@ -807,9 +807,9 @@
              * @this AHChat
              */
             notOnline: function(chat){
+                if(typeof chat =='string') chat = this.currentChat;
                 if(this.isCurrentChat(chat)){
-                    this.$el.removeClass('chat');
-                    this.removeChat(chat);
+                    this.$el.find('.msg-text').removeAttr('contenteditable').html(TEXT['user_not_online']+'...');
                 }
                 this.$el.find('.auth').addClass('notOnline');
             },
