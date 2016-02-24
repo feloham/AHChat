@@ -293,7 +293,7 @@
                 this.setToken(cfg.token || localStorage.getItem('chatToken'));
                 if(this.token) this.initSocket(cfg.url);
             },this)));
-            return this;
+            return operation;
         };
 
         /**
