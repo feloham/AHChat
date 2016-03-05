@@ -293,6 +293,7 @@
                 this.setToken(cfg.token || localStorage.getItem('chatToken'));
                 if(this.token) this.initSocket(cfg.url);
             },this)));
+
             return operation;
         };
 
@@ -639,7 +640,7 @@
             authorization: function(){
                 // #>2.2
                 var $nameInp = this.$el.find('.auth input');
-                var name = $nameInp.val();
+                var name = ($nameInp.val()+'').trim();
 
                 $nameInp.parent().removeClass('error');
 

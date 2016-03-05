@@ -153,7 +153,9 @@
           padding: 10px;
           margin: 0 -10px; }
           .ah-chat .chats .panel .auth .wrap.error, .ah-chat .window .panel .auth .wrap.error {
-            background-color: #ffa7a7; }
+            background-color: #ffa7a7;
+            display: block;
+            position: static; }
         .ah-chat .chats .panel .auth p, .ah-chat .window .panel .auth p {
           font-size: 18px;
           font-weight: bold;
